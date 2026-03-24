@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS gifs (
     created_at TEXT NOT NULL,
     source_url TEXT NOT NULL,
     source_start REAL NOT NULL,
-    source_end REAL NOT NULL
+    source_end REAL NOT NULL,
+    category TEXT NOT NULL DEFAULT 'Other'
 )
 """
 
@@ -23,6 +24,11 @@ def init_db(db_path: str) -> None:
     conn = sqlite3.connect(db_path)
     conn.execute(CREATE_GIFS_TABLE)
     conn.commit()
+    try:
+        conn.execute("ALTER TABLE gifs ADD COLUMN category TEXT NOT NULL DEFAULT 'Other'")
+        conn.commit()
+    except Exception:
+        pass  # Column already exists
     conn.close()
 
 def get_conn(db_path: str) -> sqlite3.Connection:
