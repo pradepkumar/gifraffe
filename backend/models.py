@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 from typing import Optional
 
 class GenerateRequest(BaseModel):
@@ -8,14 +8,14 @@ class GenerateRequest(BaseModel):
 
 class JobResponse(BaseModel):
     status: str
-    step: Optional[str]
-    gif_url: Optional[str]
-    error: Optional[str]
+    step: Optional[str] = None
+    gif_url: Optional[str] = None
+    error: Optional[str] = None
 
 class SubmitRequest(BaseModel):
     job_id: str
     title: str
-    tags: str
+    tags: list[str]
     submitter_name: str
     description: Optional[str] = None
     submitter_email: Optional[str] = None
@@ -23,7 +23,7 @@ class SubmitRequest(BaseModel):
 class GifSummary(BaseModel):
     id: str
     title: str
-    description: Optional[str]
+    description: Optional[str] = None
     tags: list[str]
     gif_url: str
     created_at: str
@@ -45,10 +45,10 @@ class AdminLoginRequest(BaseModel):
 class AdminGifItem(BaseModel):
     id: str
     title: str
-    description: Optional[str]
+    description: Optional[str] = None
     tags: list[str]
     submitter_name: str
-    submitter_email: Optional[str]
+    submitter_email: Optional[str] = None
     gif_url: str
     source_url: str
     source_start: float

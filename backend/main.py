@@ -1,8 +1,5 @@
-import os
 from contextlib import asynccontextmanager
-from pathlib import Path
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 
 from config import load_settings
 from database import init_db
