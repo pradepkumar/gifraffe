@@ -7,47 +7,69 @@
 
 Add a required `category` field to GIFs. Users select a category when submitting on the Make page. The Browse page gets filter tabs (All | Tamil | English | Other). Admins can edit the category in the approval queue.
 
+## Dependency
+
+**This spec requires the admin-edit-before-approve spec to be implemented first.** The category changes to `ApproveRequest` and `Admin.jsx` build on top of that spec's changes. Do not implement this spec before that one is complete.
+
 ## Category List
 
-Defined as a constant in `models.py`:
+Defined in `frontend/src/constants.js` (new file) as the single source of truth for the frontend:
+
+```js
+export const CATEGORIES = ["Tamil", "English", "Other"]
+```
+
+All three frontend files (`Make.jsx`, `Browse.jsx`, `Admin.jsx`) import from this file:
+
+```js
+import { CATEGORIES } from '../constants.js'
+```
+
+On the backend, defined as a constant in `models.py`:
 
 ```python
 CATEGORIES = ["Tamil", "English", "Other"]
 ```
 
-This is the single source of truth. No API endpoint needed. To add categories in future, update this list and redeploy.
-
 ## Database
 
 ### Schema change
 
-Add `category` column to the `gifs` table in `database.py`:
+Add `category` column to the `gifs` table. Update `CREATE_GIFS_TABLE` in `database.py` to include:
 
 ```sql
 category TEXT NOT NULL DEFAULT 'Other'
 ```
 
-### Migration
+The full updated `CREATE_GIFS_TABLE` string should include this column.
 
-The DB may already exist with existing rows. On startup, `init_db` should run the following after `CREATE TABLE IF NOT EXISTS`:
+### Migration for existing databases
+
+The existing `init_db` function opens a `sqlite3.connect(db_path)` connection, executes `CREATE TABLE IF NOT EXISTS`, commits, and closes. Add the migration **between** the `conn.commit()` and `conn.close()` calls:
 
 ```python
-try:
-    conn.execute("ALTER TABLE gifs ADD COLUMN category TEXT NOT NULL DEFAULT 'Other'")
+def init_db(db_path: str) -> None:
+    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(db_path)
+    conn.execute(CREATE_GIFS_TABLE)
     conn.commit()
-except Exception:
-    pass  # Column already exists
+    try:
+        conn.execute("ALTER TABLE gifs ADD COLUMN category TEXT NOT NULL DEFAULT 'Other'")
+        conn.commit()
+    except Exception:
+        pass  # Column already exists
+    conn.close()
 ```
 
-This is safe to run on both fresh and existing databases.
+This is safe to run on both fresh and existing databases. On a fresh DB the column is already in `CREATE_GIFS_TABLE` so the `ALTER TABLE` raises and is swallowed.
 
 ## Backend
 
 ### `models.py`
 
-Add `CATEGORIES` constant. Update affected models:
+Add `CATEGORIES` constant at the top. Update models:
 
-**`SubmitRequest`** — add required field with validation:
+**`SubmitRequest`** — add required `category` field with validation:
 ```python
 category: str
 
@@ -59,29 +81,99 @@ def category_must_be_valid(cls, v):
     return v
 ```
 
-**`GifItem`** — add `category: str`
+Also add the `field_validator` import: `from pydantic import BaseModel, field_validator`
+
+**`GifSummary`** — add `category: str`
+
+**`GifDetail`** inherits from `GifSummary` — gets `category` automatically. No change needed to the class definition, but the `get_gif` route manually constructs `GifDetail(...)` with explicit keyword arguments and must be updated (see routes section below).
 
 **`AdminGifItem`** — add `category: str`
 
-**`ApproveRequest`** (from admin-edit-before-approve spec) — add `category: str | None = None`. No validation needed here (admin-only endpoint; trust the admin).
+**`ApproveRequest`** (added by admin-edit-before-approve spec) — add `category: str | None = None`. No validation — admin-only endpoint.
 
 ### `routes/submit.py`
 
-Add `category` to the `INSERT INTO gifs` statement. The column order and values tuple must include the new field.
-
-### `routes/gifs.py` — `GET /api/gifs`
-
-Add optional `category` query parameter:
+Add `category` to the INSERT statement. Updated INSERT:
 
 ```python
-category: str | None = Query(default=None)
+conn.execute(
+    """INSERT INTO gifs
+       (id, title, description, tags, submitter_name, submitter_email,
+        file_path, status, created_at, source_url, source_start, source_end, category)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+    (
+        gif_id, req.title, req.description, tags_str,
+        req.submitter_name, req.submitter_email,
+        str(dst), "pending", now,
+        job["source_url"], job["source_start"], job["source_end"],
+        req.category,
+    )
+)
 ```
 
-If `category` is provided and non-empty, append `AND category=?` to the WHERE clause and add `category` to the query params tuple.
+### `routes/gifs.py`
 
-Return `category` in each `GifItem`.
+**`row_to_summary`** — add `category=row["category"]`:
+```python
+def row_to_summary(row, storage_dir: str) -> GifSummary:
+    return GifSummary(
+        id=row["id"],
+        title=row["title"],
+        description=row["description"],
+        tags=[t.strip() for t in row["tags"].split(",") if t.strip()],
+        gif_url=f"/static/gifs/{row['id']}.gif",
+        created_at=row["created_at"],
+        category=row["category"],
+    )
+```
 
-### `routes/admin.py` — `approve_gif`
+**`get_gif`** — add `category=row["category"]` to the `GifDetail(...)` constructor call.
+
+**`list_gifs`** — add optional `category: str = Query(default="")` parameter. The `category` filter applies to both branches (with-`q` and without-`q`) and to both the data query and the count query — four places total. Add `AND category=?` and the category value to each:
+
+```python
+@router.get("/api/gifs", response_model=GifListResponse)
+async def list_gifs(request: Request, q: str = "", category: str = Query(default=""), limit: int = 100, offset: int = 0):
+    limit = min(limit, 100)
+    settings = request.app.state.settings
+    conn = get_conn(settings.db_path)
+    try:
+        if q:
+            pattern = f"%{q}%"
+            cat_clause = " AND category=?" if category else ""
+            cat_param = (category,) if category else ()
+            rows = conn.execute(
+                f"""SELECT * FROM gifs
+                    WHERE status='approved'
+                    AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)
+                    {cat_clause}
+                    ORDER BY created_at DESC LIMIT ? OFFSET ?""",
+                (pattern, pattern, pattern, *cat_param, limit, offset)
+            ).fetchall()
+            total = conn.execute(
+                f"""SELECT COUNT(*) FROM gifs
+                    WHERE status='approved'
+                    AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)
+                    {cat_clause}""",
+                (pattern, pattern, pattern, *cat_param)
+            ).fetchone()[0]
+        else:
+            cat_clause = " AND category=?" if category else ""
+            cat_param = (category,) if category else ()
+            rows = conn.execute(
+                f"SELECT * FROM gifs WHERE status='approved'{cat_clause} ORDER BY created_at DESC LIMIT ? OFFSET ?",
+                (*cat_param, limit, offset)
+            ).fetchall()
+            total = conn.execute(
+                f"SELECT COUNT(*) FROM gifs WHERE status='approved'{cat_clause}",
+                cat_param
+            ).fetchone()[0]
+    finally:
+        conn.close()
+    ...
+```
+
+### `routes/admin.py`
 
 In the partial-update block (from admin-edit-before-approve spec), add:
 
@@ -90,9 +182,15 @@ if req.category is not None:
     updates["category"] = req.category
 ```
 
-No strip/join needed — category is a plain string value from `CATEGORIES`.
+No validation — admin-only. If an invalid value is sent manually it will simply be stored; the UI only offers valid options.
 
 ## Frontend
+
+### `frontend/src/constants.js` (new file)
+
+```js
+export const CATEGORIES = ["Tamil", "English", "Other"]
+```
 
 ### `api.js` — `searchGifs`
 
@@ -111,16 +209,25 @@ export async function searchGifs(q = '', offset = 0, category = '') {
 
 ### `components/MetadataForm.jsx`
 
-Add a `categories` prop (array of strings). Add a `category` field to the initial form state (default `''` so the user must actively choose):
+Extract both style objects from the `Field` function to module-level constants. The `Field` function currently has a local `const style = {...}` for inputs and an inline object literal for labels. Extract both:
 
 ```js
-const [form, setForm] = useState({
-  title: '', tags: '', submitter_name: '', description: '',
-  submitter_email: '', category: ''
-})
+const fieldStyle = {
+  width: '100%', padding: '10px 12px', borderRadius: 8,
+  border: '2px solid #e8c97a', fontSize: '0.95rem',
+  outline: 'none', background: '#fffdf5', resize: 'vertical',
+  boxSizing: 'border-box',
+}
+
+const labelStyle = {
+  display: 'block', marginBottom: 4, fontSize: '0.85rem',
+  fontWeight: 600, color: '#5a3a10',
+}
 ```
 
-Render a `<select>` for category, required:
+Update `Field` to use `fieldStyle` instead of its local `const style`, and `labelStyle` instead of its inline label style object.
+
+Add `categories` prop to `MetadataForm`. Add `category: ''` to the initial form state. Render a required `<select>` for category, placed after the tags field and before the description field:
 
 ```jsx
 <div>
@@ -129,7 +236,7 @@ Render a `<select>` for category, required:
     value={form.category}
     onChange={e => set('category', e.target.value)}
     required
-    style={{ ...fieldStyle, cursor: 'pointer' }}
+    style={{ ...fieldStyle, cursor: 'pointer', resize: 'none' }}
   >
     <option value="" disabled>Select a category</option>
     {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -137,11 +244,11 @@ Render a `<select>` for category, required:
 </div>
 ```
 
-Where `fieldStyle` is the same style object used by `Field` inputs (border `#e8c97a`, background `#fffdf5`, etc.), with `boxSizing: 'border-box'`.
+Both `fieldStyle` and `labelStyle` are defined at module level as described above.
 
 ### `pages/Make.jsx`
 
-Pass `categories` to `MetadataForm`:
+Import `CATEGORIES` from `../constants.js`. Pass to `MetadataForm`:
 
 ```jsx
 <MetadataForm
@@ -151,28 +258,53 @@ Pass `categories` to `MetadataForm`:
 />
 ```
 
-`CATEGORIES` is imported or defined as `["Tamil", "English", "Other"]` in `Make.jsx`. The `submitGif` payload already spreads `formData`, so `category` is included automatically.
+`category` is already in `formData` (via `MetadataForm`'s state) and is spread into `submitGif({job_id: jobId, ...formData, tags: ...})` automatically. No other change needed.
 
 ### `pages/Browse.jsx`
 
-Add `category` state (default `''` = All):
+Import `CATEGORIES` from `../constants.js`.
 
+Add `category` state:
 ```js
 const [category, setCategory] = useState('')
 ```
 
-Pass category to `load` and `searchGifs`:
-
+Update `load` signature and `searchGifs` call:
 ```js
-const load = useCallback(async (q, cat) => {
-  ...
-  const data = await searchGifs(q, 0, cat)
-  ...
+const load = useCallback(async (q, cat = '') => {
+  setLoading(true)
+  setError(null)
+  try {
+    const data = await searchGifs(q, 0, cat)
+    setGifs(data.results)
+    setTotal(data.total)
+  } catch (e) {
+    setError('Failed to load GIFs')
+  } finally {
+    setLoading(false)
+  }
 }, [])
 ```
 
-Render filter tabs above the search form:
+Update `useEffect` to pass category:
+```js
+useEffect(() => { load('', '') }, [load])
+```
 
+Update `handleSearch` and `handleTagClick` to pass current category:
+```js
+const handleSearch = (e) => {
+  e.preventDefault()
+  load(query, category)
+}
+
+const handleTagClick = (tag) => {
+  setQuery(tag)
+  load(tag, category)
+}
+```
+
+Render filter tabs above the search form:
 ```jsx
 <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
   {['All', ...CATEGORIES].map(c => {
@@ -197,29 +329,11 @@ Render filter tabs above the search form:
 </div>
 ```
 
-Update `handleSearch` to pass current category:
-```js
-const handleSearch = (e) => {
-  e.preventDefault()
-  load(query, category)
-}
-```
-
-Update `handleTagClick` to pass current category:
-```js
-const handleTagClick = (tag) => {
-  setQuery(tag)
-  load(tag, category)
-}
-```
-
-`CATEGORIES` imported or defined as `["Tamil", "English", "Other"]` in `Browse.jsx`.
-
 ### `pages/Admin.jsx`
 
-Add category `<select>` to the inline editable fields in each queue card. Category reads from `edits[gif.id].category` (initialized from `gif.category` in `toEdits`).
+Import `CATEGORIES` from `../constants.js`.
 
-Update `toEdits`:
+Update `toEdits` to include category:
 ```js
 const toEdits = (results) =>
   Object.fromEntries(results.map(g => [g.id, {
@@ -230,7 +344,7 @@ const toEdits = (results) =>
   }]))
 ```
 
-Render a `<select>` per card (same amber styling as other inline inputs):
+Add category `<select>` to each card's editable fields:
 ```jsx
 <select
   value={edits[gif.id]?.category ?? 'Other'}
@@ -241,25 +355,29 @@ Render a `<select>` per card (same amber styling as other inline inputs):
 </select>
 ```
 
-Update `handleApprove` to include category:
-```js
-category: (edits[id]?.category) || undefined,
-```
+Where `inlineInputStyle` is the existing inline input style constant defined in `Admin.jsx` by the admin-edit-before-approve spec.
 
-`CATEGORIES` defined as `["Tamil", "English", "Other"]` at the top of `Admin.jsx`.
+Update `handleApprove` to include category (consistent with the `|| undefined` pattern for other fields):
+```js
+category: edits[id]?.category || undefined,
+```
 
 ## Testing
 
-Add to `backend/tests/test_routes_admin.py`:
+### Existing tests that need updating
 
-**`test_approve_updates_category`** — insert pending GIF (default category `'Other'`), approve with body `{"category": "Tamil"}`, assert DB has `category="Tamil"`.
+**`backend/tests/test_routes_submit.py`** — all existing submit test payloads omit `category`. Since `category` is now required, all will return 422. Add `"category": "Tamil"` (or any valid value) to every `POST /api/submit` payload in that file.
 
-Add to `backend/tests/test_routes_submit.py` (or whichever file tests submit):
+**`backend/tests/test_routes_gifs.py`** — update `insert_gif` helper to accept and store a `category` parameter (default `"Tamil"` for backward compatibility with existing calls). Add `category` to the INSERT column list and values tuple. Existing test calls that don't pass `category` will use the default.
 
-**`test_submit_rejects_invalid_category`** — POST to `/api/submit` with `category="Invalid"`, assert 422.
+### New tests
 
-**`test_submit_accepts_valid_category`** — POST with `category="Tamil"`, assert 200/202 (note: submit requires a pre-existing job file in temp storage — follow the pattern of existing submit tests).
+**`test_routes_submit.py`** — add:
+- `test_submit_rejects_invalid_category` — POST with `category="Invalid"`, assert 422
+- `test_submit_accepts_valid_category` — POST with `category="Tamil"`, assert 201. Follow existing test pattern for building a valid submit payload (completed job in job_store, temp GIF file).
 
-Add to `backend/tests/test_routes_gifs.py`:
+**`test_routes_gifs.py`** — add:
+- `test_search_filters_by_category` — insert two approved GIFs with different categories (e.g. `"Tamil"` and `"English"`), call `GET /api/gifs?category=Tamil`, assert only the Tamil GIF is returned and `total=1`.
 
-**`test_search_filters_by_category`** — insert two approved GIFs with different categories, call `GET /api/gifs?category=Tamil`, assert only the Tamil GIF is returned.
+**`test_routes_admin.py`** — add:
+- `test_approve_updates_category` — insert pending GIF (default category `'Other'`), approve with body `{"category": "Tamil"}`, assert DB has `category="Tamil"` and `status="approved"`.
