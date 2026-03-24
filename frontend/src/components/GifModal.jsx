@@ -2,13 +2,14 @@ import { useEffect } from 'react'
 import TagChip from './TagChip.jsx'
 
 export default function GifModal({ gif, onClose, onTagClick }) {
-  if (!gif) return null
-
   useEffect(() => {
+    if (!gif) return
     const handler = (e) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
+  }, [gif, onClose])
+
+  if (!gif) return null
 
   const handleDownload = () => {
     const a = document.createElement('a')
