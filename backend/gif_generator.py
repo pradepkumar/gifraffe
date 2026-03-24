@@ -45,6 +45,7 @@ def generate_gif(
     Returns the file path of the generated GIF relative to storage_dir.
     Raises ValueError on user-fixable errors, RuntimeError on system errors.
     """
+    validate_duration(start, end)
     import yt_dlp
 
     output_path = Path(storage_dir) / "temp" / f"{job_id}.gif"
