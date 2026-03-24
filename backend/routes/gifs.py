@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 from models import GifListResponse, GifSummary, GifDetail
 from database import get_conn
 
@@ -12,36 +12,44 @@ def row_to_summary(row, storage_dir: str) -> GifSummary:
         tags=[t.strip() for t in row["tags"].split(",") if t.strip()],
         gif_url=f"/static/gifs/{row['id']}.gif",
         created_at=row["created_at"],
+        category=row["category"],
     )
 
 @router.get("/api/gifs", response_model=GifListResponse)
-async def list_gifs(request: Request, q: str = "", limit: int = 100, offset: int = 0):
+async def list_gifs(request: Request, q: str = "", category: str = Query(default=""), limit: int = 100, offset: int = 0):
     limit = min(limit, 100)
     settings = request.app.state.settings
     conn = get_conn(settings.db_path)
     try:
         if q:
             pattern = f"%{q}%"
+            cat_clause = " AND category=?" if category else ""
+            cat_param = (category,) if category else ()
             rows = conn.execute(
-                """SELECT * FROM gifs
-                   WHERE status='approved'
-                   AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)
-                   ORDER BY created_at DESC LIMIT ? OFFSET ?""",
-                (pattern, pattern, pattern, limit, offset)
+                f"""SELECT * FROM gifs
+                    WHERE status='approved'
+                    AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)
+                    {cat_clause}
+                    ORDER BY created_at DESC LIMIT ? OFFSET ?""",
+                (pattern, pattern, pattern, *cat_param, limit, offset)
             ).fetchall()
             total = conn.execute(
-                """SELECT COUNT(*) FROM gifs
-                   WHERE status='approved'
-                   AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)""",
-                (pattern, pattern, pattern)
+                f"""SELECT COUNT(*) FROM gifs
+                    WHERE status='approved'
+                    AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)
+                    {cat_clause}""",
+                (pattern, pattern, pattern, *cat_param)
             ).fetchone()[0]
         else:
+            cat_clause = " AND category=?" if category else ""
+            cat_param = (category,) if category else ()
             rows = conn.execute(
-                "SELECT * FROM gifs WHERE status='approved' ORDER BY created_at DESC LIMIT ? OFFSET ?",
-                (limit, offset)
+                f"SELECT * FROM gifs WHERE status='approved'{cat_clause} ORDER BY created_at DESC LIMIT ? OFFSET ?",
+                (*cat_param, limit, offset)
             ).fetchall()
             total = conn.execute(
-                "SELECT COUNT(*) FROM gifs WHERE status='approved'"
+                f"SELECT COUNT(*) FROM gifs WHERE status='approved'{cat_clause}",
+                cat_param
             ).fetchone()[0]
     finally:
         conn.close()
@@ -77,4 +85,5 @@ async def get_gif(gif_id: str, request: Request):
         source_url=row["source_url"],
         source_start=row["source_start"],
         source_end=row["source_end"],
+        category=row["category"],
     )

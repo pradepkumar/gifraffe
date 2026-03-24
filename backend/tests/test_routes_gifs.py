@@ -3,18 +3,18 @@ from database import get_conn, init_db
 from datetime import datetime, timezone
 import os, uuid
 
-def insert_gif(db_path, status="approved", title="Test GIF", tags="funny,test"):
+def insert_gif(db_path, status="approved", title="Test GIF", tags="funny,test", category="Tamil"):
     gid = str(uuid.uuid4())
     conn = get_conn(db_path)
     conn.execute(
         """INSERT INTO gifs
            (id, title, description, tags, submitter_name, file_path, status,
-            created_at, source_url, source_start, source_end)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            created_at, source_url, source_start, source_end, category)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
         (gid, title, "desc", tags, "Ravi",
          f"storage/gifs/{gid}.gif", status,
          datetime.now(timezone.utc).isoformat(),
-         "https://youtube.com/watch?v=abc", 0.0, 5.0)
+         "https://youtube.com/watch?v=abc", 0.0, 5.0, category)
     )
     conn.commit()
     conn.close()
@@ -69,3 +69,12 @@ def test_tags_returned_as_list(client):
     insert_gif(db_path, tags="vijay,comedy,entry")
     resp = client.get("/api/gifs")
     assert resp.json()["results"][0]["tags"] == ["vijay", "comedy", "entry"]
+
+def test_search_filters_by_category(client):
+    db_path = os.environ["DB_PATH"]
+    insert_gif(db_path, title="Tamil GIF", tags="t", category="Tamil")
+    insert_gif(db_path, title="English GIF", tags="e", category="English")
+    resp = client.get("/api/gifs?category=Tamil")
+    assert resp.status_code == 200
+    assert resp.json()["total"] == 1
+    assert resp.json()["results"][0]["title"] == "Tamil GIF"

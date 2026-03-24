@@ -14,11 +14,11 @@ def insert_pending_gif(db_path: str, storage_dir: str) -> str:
     conn.execute(
         """INSERT INTO gifs
            (id, title, description, tags, submitter_name, file_path, status,
-            created_at, source_url, source_start, source_end)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            created_at, source_url, source_start, source_end, category)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
         (gid, "Test", None, "tag1", "Ravi", str(gif_file), "pending",
          datetime.now(timezone.utc).isoformat(),
-         "https://youtube.com/watch?v=abc", 0.0, 5.0)
+         "https://youtube.com/watch?v=abc", 0.0, 5.0, "Other")
     )
     conn.commit()
     conn.close()
@@ -121,4 +121,21 @@ def test_approve_empty_body_preserves_fields(client):
     assert row["title"] == "Test"
     assert row["tags"] == "tag1"
     assert row["description"] is None
+    assert row["status"] == "approved"
+
+def test_approve_updates_category(client):
+    db_path = os.environ["DB_PATH"]
+    storage_dir = os.environ["STORAGE_DIR"]
+    gid = insert_pending_gif(db_path, storage_dir)
+    cookies = login(client)
+    resp = client.post(
+        f"/api/admin/approve/{gid}",
+        json={"category": "Tamil"},
+        cookies=cookies,
+    )
+    assert resp.status_code == 200
+    conn = get_conn(db_path)
+    row = conn.execute("SELECT * FROM gifs WHERE id=?", (gid,)).fetchone()
+    conn.close()
+    assert row["category"] == "Tamil"
     assert row["status"] == "approved"

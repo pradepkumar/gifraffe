@@ -58,6 +58,7 @@ async def get_queue(
             gif_url=f"/api/admin/pending/{r['id']}",
             source_url=r["source_url"], source_start=r["source_start"],
             source_end=r["source_end"], created_at=r["created_at"],
+            category=r["category"],
         )
         for r in rows
     ]
@@ -99,6 +100,8 @@ async def approve_gif(
             updates["tags"] = ",".join(req.tags)
         if req.description is not None:
             updates["description"] = req.description.strip()
+        if req.category is not None:
+            updates["category"] = req.category
         if updates:
             set_clause = ", ".join(f"{k}=?" for k in updates)
             conn.execute(
