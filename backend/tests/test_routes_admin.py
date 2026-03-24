@@ -79,3 +79,12 @@ def test_reject_deletes_gif(client):
 def test_pending_gif_requires_auth(client):
     resp = client.get("/api/admin/pending/someid")
     assert resp.status_code == 401
+
+def test_pending_gif_serves_file(client):
+    db_path = os.environ["DB_PATH"]
+    storage_dir = os.environ["STORAGE_DIR"]
+    gid = insert_pending_gif(db_path, storage_dir)
+    cookies = login(client)
+    resp = client.get(f"/api/admin/pending/{gid}", cookies=cookies)
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "image/gif"
