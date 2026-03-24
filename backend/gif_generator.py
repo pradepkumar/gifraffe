@@ -1,5 +1,4 @@
 import subprocess
-import os
 from pathlib import Path
 from typing import Callable
 
@@ -18,12 +17,11 @@ def validate_duration(start: float, end: float) -> None:
     if (end - start) > MAX_DURATION_SECONDS:
         raise ValueError("Maximum clip length is 10 seconds")
 
-def build_ffmpeg_command(video_url: str, start: float, end: float, output_path: Path) -> list[str]:
+def build_ffmpeg_command(video_path: Path, start: float, end: float, output_path: Path) -> list[str]:
     duration = end - start
     return [
         "ffmpeg", "-y",
-        "-ss", str(start),
-        "-i", video_url,
+        "-i", str(video_path),
         "-t", str(duration),
         "-filter_complex",
         "[0:v] fps=12,scale=480:-1:flags=lanczos,split [s0][s1];"
@@ -47,37 +45,47 @@ def generate_gif(
     """
     validate_duration(start, end)
     import yt_dlp
+    from yt_dlp.utils import download_range_func
 
-    output_path = Path(storage_dir) / "temp" / f"{job_id}.gif"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    temp_dir = Path(storage_dir) / "temp"
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    temp_video = temp_dir / f"{job_id}.mp4"
+    output_path = temp_dir / f"{job_id}.gif"
 
-    # Step 1: Get direct video stream URL
+    # Step 1: Download just the needed clip segment
     step_callback("Downloading")
     ydl_opts = {
-        "format": "best[height<=480][ext=mp4]/best[height<=480]/best",
+        "format": "bestvideo[height<=480][ext=mp4]/bestvideo[height<=480]/bestvideo",
+        "outtmpl": str(temp_video),
         "quiet": True,
         "no_warnings": True,
+        "download_ranges": download_range_func(None, [(start, end)]),
+        "force_keyframes_at_cuts": True,
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(youtube_url, download=False)
-            video_url = info.get("url") or info["formats"][-1]["url"]
+            ydl.download([youtube_url])
     except Exception as e:
         raise RuntimeError(f"Video unavailable or private: {e}")
 
-    # Step 2: Extract clip marker (FFmpeg will seek)
+    if not temp_video.exists():
+        raise RuntimeError("Download failed — please try again")
+
+    # Step 2: Extract clip
     step_callback("Extracting clip")
 
     # Step 3: Convert to GIF
     step_callback("Converting to GIF")
-    cmd = build_ffmpeg_command(video_url, start, end, output_path)
+    cmd = build_ffmpeg_command(temp_video, start, end, output_path)
     try:
-        result = subprocess.run(cmd, capture_output=True, timeout=55)
+        result = subprocess.run(cmd, capture_output=True, timeout=120)
     except subprocess.TimeoutExpired:
         raise RuntimeError("Generation timed out — please try again")
+    finally:
+        temp_video.unlink(missing_ok=True)
 
     if result.returncode != 0:
-        raise RuntimeError("Something went wrong — please try again")
+        raise RuntimeError(result.stderr.decode(errors="replace")[-500:])
 
     # Check file size
     size = output_path.stat().st_size

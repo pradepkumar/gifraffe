@@ -20,7 +20,7 @@ def run_generate_job(job_id: str, url: str, start: float, end: float, storage_di
     except ValueError as e:
         job_store.fail(job_id, str(e))
     except Exception as e:
-        job_store.fail(job_id, "Something went wrong — please try again")
+        job_store.fail(job_id, str(e))
 
 @router.post("/api/generate", status_code=202)
 async def create_generate_job(
