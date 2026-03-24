@@ -57,9 +57,12 @@ export async function getAdminQueue() {
   return res.json()
 }
 
-export async function approveGif(id) {
+export async function approveGif(id, fields = {}) {
   const res = await fetch(`${BASE}/api/admin/approve/${id}`, {
-    method: 'POST', credentials: 'include'
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fields),
+    credentials: 'include',
   })
   if (!res.ok) throw new Error('Approve failed')
   return res.json()

@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react'
 import { adminLogin, getAdminQueue, approveGif, rejectGif } from '../api.js'
-import TagChip from '../components/TagChip.jsx'
+
+const inlineInputStyle = {
+  width: '100%',
+  padding: '8px 10px',
+  borderRadius: 8,
+  border: '2px solid #e8c97a',
+  background: '#fffdf5',
+  fontSize: '0.9rem',
+  outline: 'none',
+  boxSizing: 'border-box',
+}
 
 export default function Admin() {
   const [authed, setAuthed] = useState(false)
@@ -9,12 +19,21 @@ export default function Admin() {
   const [queue, setQueue] = useState([])
   const [loading, setLoading] = useState(false)
   const [actionInProgress, setActionInProgress] = useState(null)
+  const [edits, setEdits] = useState({})
+
+  const toEdits = (results) =>
+    Object.fromEntries(results.map(g => [g.id, {
+      title: g.title,
+      tags: (g.tags ?? []).join(', '),
+      description: g.description ?? '',
+    }]))
 
   const loadQueue = async () => {
     setLoading(true)
     try {
       const data = await getAdminQueue()
       setQueue(data.results)
+      setEdits(toEdits(data.results))
     } catch (e) {
       if (e.message === 'Unauthorized') setAuthed(false)
     } finally {
@@ -24,7 +43,9 @@ export default function Admin() {
 
   useEffect(() => {
     // Try to load queue — if it works, we're already authed (existing session)
-    getAdminQueue().then(data => { setAuthed(true); setQueue(data.results) }).catch(() => {})
+    getAdminQueue()
+      .then(data => { setAuthed(true); setQueue(data.results); setEdits(toEdits(data.results)) })
+      .catch(() => {})
   }, [])
 
   const handleLogin = async (e) => {
@@ -42,7 +63,12 @@ export default function Admin() {
   const handleApprove = async (id) => {
     setActionInProgress(id)
     try {
-      await approveGif(id)
+      const { title, tags, description } = edits[id] ?? {}
+      await approveGif(id, {
+        title: title?.trim() || undefined,
+        tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : undefined,
+        description: description?.trim() || undefined,
+      })
       setQueue(q => q.filter(g => g.id !== id))
     } catch (e) {
       alert('Failed to approve — ' + e.message)
@@ -108,10 +134,27 @@ export default function Admin() {
         }}>
           <img src={gif.gif_url} alt={gif.title} style={{ width: '100%', display: 'block', maxHeight: 300, objectFit: 'contain' }} />
           <div style={{ padding: 16 }}>
-            <h3 style={{ marginBottom: 6 }}>{gif.title}</h3>
-            {gif.description && <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: 8 }}>{gif.description}</p>}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
-              {gif.tags.map(t => <TagChip key={t} tag={t} />)}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
+              <input
+                type="text"
+                value={edits[gif.id]?.title ?? ''}
+                onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], title: e.target.value } }))}
+                style={inlineInputStyle}
+                placeholder="Title"
+              />
+              <input
+                type="text"
+                value={edits[gif.id]?.tags ?? ''}
+                onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], tags: e.target.value } }))}
+                style={inlineInputStyle}
+                placeholder="tag1, tag2"
+              />
+              <textarea
+                value={edits[gif.id]?.description ?? ''}
+                onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], description: e.target.value } }))}
+                style={{ ...inlineInputStyle, resize: 'vertical', minHeight: 60 }}
+                placeholder="Description (optional)"
+              />
             </div>
             <p style={{ fontSize: '0.82rem', color: '#888', marginBottom: 12 }}>
               By {gif.submitter_name}{gif.submitter_email ? ` (${gif.submitter_email})` : ''} ·{' '}
