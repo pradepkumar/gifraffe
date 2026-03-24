@@ -54,3 +54,8 @@ class AdminGifItem(BaseModel):
     source_start: float
     source_end: float
     created_at: str
+
+class ApproveRequest(BaseModel):
+    title: str | None = None
+    tags: list[str] | None = None
+    description: str | None = None

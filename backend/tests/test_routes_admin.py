@@ -88,3 +88,37 @@ def test_pending_gif_serves_file(client):
     resp = client.get(f"/api/admin/pending/{gid}", cookies=cookies)
     assert resp.status_code == 200
     assert resp.headers["content-type"] == "image/gif"
+
+def test_approve_updates_fields(client):
+    db_path = os.environ["DB_PATH"]
+    storage_dir = os.environ["STORAGE_DIR"]
+    gid = insert_pending_gif(db_path, storage_dir)
+    cookies = login(client)
+    resp = client.post(
+        f"/api/admin/approve/{gid}",
+        json={"title": "Updated", "tags": ["new"], "description": "desc"},
+        cookies=cookies,
+    )
+    assert resp.status_code == 200
+    conn = get_conn(db_path)
+    row = conn.execute("SELECT * FROM gifs WHERE id=?", (gid,)).fetchone()
+    conn.close()
+    assert row["title"] == "Updated"
+    assert row["tags"] == "new"
+    assert row["description"] == "desc"
+    assert row["status"] == "approved"
+
+def test_approve_empty_body_preserves_fields(client):
+    db_path = os.environ["DB_PATH"]
+    storage_dir = os.environ["STORAGE_DIR"]
+    gid = insert_pending_gif(db_path, storage_dir)
+    cookies = login(client)
+    resp = client.post(f"/api/admin/approve/{gid}", json={}, cookies=cookies)
+    assert resp.status_code == 200
+    conn = get_conn(db_path)
+    row = conn.execute("SELECT * FROM gifs WHERE id=?", (gid,)).fetchone()
+    conn.close()
+    assert row["title"] == "Test"
+    assert row["tags"] == "tag1"
+    assert row["description"] is None
+    assert row["status"] == "approved"

@@ -1,9 +1,9 @@
 from pathlib import Path
-from fastapi import APIRouter, Cookie, HTTPException, Request, Response
+from fastapi import APIRouter, Body, Cookie, HTTPException, Request, Response
 from fastapi.responses import FileResponse
 import bcrypt
 from itsdangerous import TimestampSigner, BadSignature, SignatureExpired
-from models import AdminLoginRequest, AdminGifItem
+from models import AdminLoginRequest, AdminGifItem, ApproveRequest
 from database import get_conn
 from storage import move_file, delete_file
 
@@ -80,6 +80,7 @@ async def serve_pending_gif(
 async def approve_gif(
     gif_id: str,
     request: Request,
+    req: ApproveRequest = Body(default=ApproveRequest()),
     gifraffe_session: str | None = Cookie(default=None),
 ):
     _require_auth(request, gifraffe_session)
@@ -89,6 +90,22 @@ async def approve_gif(
         row = conn.execute("SELECT * FROM gifs WHERE id=? AND status='pending'", (gif_id,)).fetchone()
         if not row:
             raise HTTPException(404, detail="Pending GIF not found")
+
+        # Apply field edits before approving
+        updates = {}
+        if req.title is not None:
+            updates["title"] = req.title.strip()
+        if req.tags is not None:
+            updates["tags"] = ",".join(req.tags)
+        if req.description is not None:
+            updates["description"] = req.description.strip()
+        if updates:
+            set_clause = ", ".join(f"{k}=?" for k in updates)
+            conn.execute(
+                f"UPDATE gifs SET {set_clause} WHERE id=?",
+                (*updates.values(), gif_id)
+            )
+
         src = Path(settings.storage_dir) / "pending" / f"{gif_id}.gif"
         dst = Path(settings.storage_dir) / "gifs" / f"{gif_id}.gif"
         move_file(src, dst)
