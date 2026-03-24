@@ -24,12 +24,10 @@ export default function GifCard({ gif, onTagClick, onClick }) {
       <div style={{ padding: '10px 12px' }}>
         <div style={{ fontWeight: 600, marginBottom: 6, fontSize: '0.9rem' }}>{gif.title}</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-          {gif.tags.map(tag => (
-            <TagChip
-              key={tag}
-              tag={tag}
-              onClick={e => { e.stopPropagation(); onTagClick(tag) }}
-            />
+          {(gif.tags ?? []).map(tag => (
+            <span key={tag} onClick={e => e.stopPropagation()}>
+              <TagChip tag={tag} onClick={() => onTagClick?.(tag)} />
+            </span>
           ))}
         </div>
       </div>

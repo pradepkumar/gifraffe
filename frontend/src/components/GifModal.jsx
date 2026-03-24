@@ -1,13 +1,22 @@
+import { useEffect } from 'react'
 import TagChip from './TagChip.jsx'
 
 export default function GifModal({ gif, onClose, onTagClick }) {
   if (!gif) return null
 
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
   const handleDownload = () => {
     const a = document.createElement('a')
     a.href = gif.gif_url
     a.download = `${gif.title.replace(/\s+/g, '-')}.gif`
+    document.body.appendChild(a)
     a.click()
+    document.body.removeChild(a)
   }
 
   const handleShare = async () => {
@@ -47,7 +56,7 @@ export default function GifModal({ gif, onClose, onTagClick }) {
             <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: 10 }}>{gif.description}</p>
           )}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 14 }}>
-            {gif.tags.map(tag => (
+            {(gif.tags ?? []).map(tag => (
               <TagChip key={tag} tag={tag} onClick={() => { onTagClick(tag); onClose() }} />
             ))}
           </div>
