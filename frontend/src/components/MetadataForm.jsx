@@ -1,8 +1,20 @@
 import { useState } from 'react'
 
-export default function MetadataForm({ onSubmit, loading }) {
+const fieldStyle = {
+  width: '100%', padding: '10px 12px', borderRadius: 8,
+  border: '2px solid #e8c97a', fontSize: '0.95rem',
+  outline: 'none', background: '#fffdf5', resize: 'vertical',
+  boxSizing: 'border-box',
+}
+
+const labelStyle = {
+  display: 'block', marginBottom: 4, fontSize: '0.85rem',
+  fontWeight: 600, color: '#5a3a10',
+}
+
+export default function MetadataForm({ onSubmit, loading, categories }) {
   const [form, setForm] = useState({
-    title: '', tags: '', submitter_name: '', description: '', submitter_email: ''
+    title: '', tags: '', submitter_name: '', description: '', submitter_email: '', category: ''
   })
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -19,6 +31,18 @@ export default function MetadataForm({ onSubmit, loading }) {
         label="Tags * (comma-separated, e.g. vijay,comedy,entry)"
         value={form.tags} onChange={v => set('tags', v)} required
       />
+      <div>
+        <label style={labelStyle}>Category *</label>
+        <select
+          value={form.category}
+          onChange={e => set('category', e.target.value)}
+          required
+          style={{ ...fieldStyle, cursor: 'pointer', resize: 'none' }}
+        >
+          <option value="" disabled>Select a category</option>
+          {categories.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
       <Field label="Your Name *" value={form.submitter_name} onChange={v => set('submitter_name', v)} required />
       <Field
         label="Description (dialogue, scene context...)"
@@ -47,20 +71,14 @@ export default function MetadataForm({ onSubmit, loading }) {
 }
 
 function Field({ label, value, onChange, required, type = 'text', multiline }) {
-  const style = {
-    width: '100%', padding: '10px 12px', borderRadius: 8,
-    border: '2px solid #e8c97a', fontSize: '0.95rem',
-    outline: 'none', background: '#fffdf5', resize: 'vertical',
-    boxSizing: 'border-box',
-  }
   return (
     <div>
-      <label style={{ display: 'block', marginBottom: 4, fontSize: '0.85rem', fontWeight: 600, color: '#5a3a10' }}>
+      <label style={labelStyle}>
         {label}
       </label>
       {multiline
-        ? <textarea value={value} onChange={e => onChange(e.target.value)} required={required} style={{ ...style, minHeight: 80 }} />
-        : <input type={type} value={value} onChange={e => onChange(e.target.value)} required={required} style={style} />
+        ? <textarea value={value} onChange={e => onChange(e.target.value)} required={required} style={{ ...fieldStyle, minHeight: 80 }} />
+        : <input type={type} value={value} onChange={e => onChange(e.target.value)} required={required} style={fieldStyle} />
       }
     </div>
   )

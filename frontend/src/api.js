@@ -26,9 +26,10 @@ export async function submitGif(payload) {
   return res.json()
 }
 
-export async function searchGifs(q = '', offset = 0) {
+export async function searchGifs(q = '', offset = 0, category = '') {
   const params = new URLSearchParams({ offset })
   if (q) params.set('q', q)
+  if (category) params.set('category', category)
   const res = await fetch(`${BASE}/api/gifs?${params}`)
   if (!res.ok) throw new Error('Search failed')
   return res.json()
