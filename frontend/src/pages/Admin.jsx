@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { adminLogin, getAdminQueue, approveGif, rejectGif } from '../api.js'
+import { CATEGORIES } from '../constants.js'
 
 const inlineInputStyle = {
   width: '100%',
@@ -26,6 +27,7 @@ export default function Admin() {
       title: g.title,
       tags: (g.tags ?? []).join(', '),
       description: g.description ?? '',
+      category: g.category ?? 'Other',
     }]))
 
   const loadQueue = async () => {
@@ -63,11 +65,12 @@ export default function Admin() {
   const handleApprove = async (id) => {
     setActionInProgress(id)
     try {
-      const { title, tags, description } = edits[id] ?? {}
+      const { title, tags, description, category } = edits[id] ?? {}
       await approveGif(id, {
         title: title?.trim() || undefined,
         tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : undefined,
         description: description?.trim() || undefined,
+        category: category || undefined,
       })
       setQueue(q => q.filter(g => g.id !== id))
     } catch (e) {
@@ -155,6 +158,13 @@ export default function Admin() {
                 style={{ ...inlineInputStyle, resize: 'vertical', minHeight: 60 }}
                 placeholder="Description (optional)"
               />
+              <select
+                value={edits[gif.id]?.category ?? 'Other'}
+                onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], category: e.target.value } }))}
+                style={inlineInputStyle}
+              >
+                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
             </div>
             <p style={{ fontSize: '0.82rem', color: '#888', marginBottom: 12 }}>
               By {gif.submitter_name}{gif.submitter_email ? ` (${gif.submitter_email})` : ''} ·{' '}

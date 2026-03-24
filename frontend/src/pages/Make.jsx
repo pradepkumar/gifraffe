@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { generateGif, pollJob, submitGif } from '../api.js'
 import ProgressSteps from '../components/ProgressSteps.jsx'
 import MetadataForm from '../components/MetadataForm.jsx'
+import { CATEGORIES } from '../constants.js'
 
 const STEP_LABELS = { pending: 'Downloading', processing: null, done: 'Done', failed: null }
 
@@ -188,7 +189,7 @@ export default function Make() {
           {showForm && !submitDone && (
             <div style={{ marginTop: 16 }}>
               <h3 style={{ marginBottom: 14, color: '#5a3a10' }}>Submit details</h3>
-              <MetadataForm onSubmit={handleSubmit} loading={submitLoading} />
+              <MetadataForm onSubmit={handleSubmit} loading={submitLoading} categories={CATEGORIES} />
             </div>
           )}
         </div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { searchGifs } from '../api.js'
 import GifCard from '../components/GifCard.jsx'
 import GifModal from '../components/GifModal.jsx'
+import { CATEGORIES } from '../constants.js'
 
 export default function Browse() {
   const [query, setQuery] = useState('')
@@ -10,12 +11,13 @@ export default function Browse() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [selected, setSelected] = useState(null)
+  const [category, setCategory] = useState('')
 
-  const load = useCallback(async (q) => {
+  const load = useCallback(async (q, cat = '') => {
     setLoading(true)
     setError(null)
     try {
-      const data = await searchGifs(q)
+      const data = await searchGifs(q, 0, cat)
       setGifs(data.results)
       setTotal(data.total)
     } catch (e) {
@@ -25,16 +27,16 @@ export default function Browse() {
     }
   }, [])
 
-  useEffect(() => { load('') }, [load])
+  useEffect(() => { load('', '') }, [load])
 
   const handleSearch = (e) => {
     e.preventDefault()
-    load(query)
+    load(query, category)
   }
 
   const handleTagClick = (tag) => {
     setQuery(tag)
-    load(tag)
+    load(tag, category)
   }
 
   return (
@@ -44,6 +46,28 @@ export default function Browse() {
         <p style={{ color: '#b8832a', fontSize: '0.9rem' }}>
           {total > 0 ? `${total} GIF${total !== 1 ? 's' : ''} in the library` : 'Search or browse GIFs below'}
         </p>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+        {['All', ...CATEGORIES].map(c => {
+          const val = c === 'All' ? '' : c
+          const active = category === val
+          return (
+            <button
+              key={c}
+              onClick={() => { setCategory(val); load(query, val) }}
+              style={{
+                background: active ? '#d4880a' : '#f5e6c0',
+                color: active ? '#fff' : '#7a4f1a',
+                border: 'none', borderRadius: 20,
+                padding: '6px 16px', fontWeight: 600,
+                cursor: 'pointer', fontSize: '0.9rem',
+              }}
+            >
+              {c}
+            </button>
+          )
+        })}
       </div>
 
       <form onSubmit={handleSearch} style={{ marginBottom: 24 }}>
