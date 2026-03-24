@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { searchGifs } from '../api.js'
 import GifCard from '../components/GifCard.jsx'
 import GifModal from '../components/GifModal.jsx'
@@ -27,7 +27,17 @@ export default function Browse() {
     }
   }, [])
 
-  useEffect(() => { load('', '') }, [load])
+  const mounted = useRef(false)
+
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true
+      load(query, category)
+      return
+    }
+    const timer = setTimeout(() => load(query, category), 300)
+    return () => clearTimeout(timer)
+  }, [query, category, load])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -36,7 +46,6 @@ export default function Browse() {
 
   const handleTagClick = (tag) => {
     setQuery(tag)
-    load(tag, category)
   }
 
   return (
@@ -55,7 +64,7 @@ export default function Browse() {
           return (
             <button
               key={c}
-              onClick={() => { setCategory(val); load(query, val) }}
+              onClick={() => setCategory(val)}
               style={{
                 background: active ? '#d4880a' : '#f5e6c0',
                 color: active ? '#fff' : '#7a4f1a',
