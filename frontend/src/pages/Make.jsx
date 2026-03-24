@@ -47,17 +47,23 @@ export default function Make() {
       const { job_id } = await generateGif(url, start, end)
       setJobId(job_id)
       pollRef.current = setInterval(async () => {
-        const job = await pollJob(job_id)
-        if (job.step) setCurrentStep(job.step)
-        if (job.status === 'done') {
+        try {
+          const job = await pollJob(job_id)
+          if (job.step) setCurrentStep(job.step)
+          if (job.status === 'done') {
+            stopPolling()
+            setGifUrl(job.gif_url)
+            setCurrentStep('Done')
+            setState('done')
+            setGeneratedAt(Date.now())
+          } else if (job.status === 'failed') {
+            stopPolling()
+            setError(job.error || 'Something went wrong — please try again')
+            setState('error')
+          }
+        } catch (err) {
           stopPolling()
-          setGifUrl(job.gif_url)
-          setCurrentStep('Done')
-          setState('done')
-          setGeneratedAt(Date.now())
-        } else if (job.status === 'failed') {
-          stopPolling()
-          setError(job.error || 'Something went wrong — please try again')
+          setError(err.message || 'Lost connection — please try again')
           setState('error')
         }
       }, 2000)
@@ -99,7 +105,11 @@ export default function Make() {
     }
     setSubmitLoading(true)
     try {
-      await submitGif({ job_id: jobId, ...formData })
+      await submitGif({
+        job_id: jobId,
+        ...formData,
+        tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+      })
       setSubmitDone(true)
       setShowForm(false)
     } catch (e) {
@@ -191,6 +201,7 @@ const inputStyle = {
   width: '100%', padding: '11px 14px', borderRadius: 10,
   border: '2px solid #e8c97a', fontSize: '1rem',
   outline: 'none', background: '#fffdf5',
+  boxSizing: 'border-box',
 }
 const labelStyle = { display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#5a3a10', marginBottom: 4 }
 const actionBtn = (bg, color, border = 'none') => ({

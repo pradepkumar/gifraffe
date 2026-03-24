@@ -51,6 +51,7 @@ function Field({ label, value, onChange, required, type = 'text', multiline }) {
     width: '100%', padding: '10px 12px', borderRadius: 8,
     border: '2px solid #e8c97a', fontSize: '0.95rem',
     outline: 'none', background: '#fffdf5', resize: 'vertical',
+    boxSizing: 'border-box',
   }
   return (
     <div>
@@ -58,7 +59,7 @@ function Field({ label, value, onChange, required, type = 'text', multiline }) {
         {label}
       </label>
       {multiline
-        ? <textarea value={value} onChange={e => onChange(e.target.value)} style={{ ...style, minHeight: 80 }} />
+        ? <textarea value={value} onChange={e => onChange(e.target.value)} required={required} style={{ ...style, minHeight: 80 }} />
         : <input type={type} value={value} onChange={e => onChange(e.target.value)} required={required} style={style} />
       }
     </div>
