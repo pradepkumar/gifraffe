@@ -23,8 +23,10 @@ def client(set_test_env):
     # Remove cached modules so they reload with fresh env
     for mod in list(sys.modules.keys()):
         if mod.startswith(("main", "config", "database", "storage", "jobs",
-                            "routes", "cleanup", "gif_generator")):
+                            "routes", "cleanup", "gif_generator", "models")):
             del sys.modules[mod]
     import main
     from fastapi.testclient import TestClient
-    return TestClient(main.app, raise_server_exceptions=True)
+    # Use context manager to ensure lifespan runs
+    with TestClient(main.app, raise_server_exceptions=True) as tc:
+        yield tc
