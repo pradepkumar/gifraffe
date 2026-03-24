@@ -4,6 +4,7 @@ backend/*.pyc
 backend/.env
 backend/gifraffe.db
 backend/static_frontend/
+backend/.venv/
 
 # Storage
 storage/
