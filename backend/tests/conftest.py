@@ -16,7 +16,7 @@ def set_test_env(monkeypatch, tmp_path, test_password_hash):
     monkeypatch.setenv("STORAGE_DIR", str(tmp_path / "storage"))
 
 @pytest.fixture
-def client(set_test_env, tmp_path):
+def client(set_test_env):
     """Fresh TestClient per test — reimports app with current env vars."""
     import importlib
     import sys

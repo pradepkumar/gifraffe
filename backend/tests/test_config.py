@@ -4,9 +4,9 @@ import os
 
 def test_load_settings_raises_if_missing_hash(monkeypatch):
     monkeypatch.delenv("ADMIN_PASSWORD_HASH", raising=False)
-    monkeypatch.delenv("SESSION_SECRET", raising=False)
+    monkeypatch.setenv("SESSION_SECRET", "a" * 32)
     from config import load_settings
-    with pytest.raises(Exception):
+    with pytest.raises(RuntimeError):
         load_settings()
 
 def test_load_settings_raises_if_secret_too_short(monkeypatch):
@@ -23,4 +23,4 @@ def test_load_settings_succeeds_with_valid_env(monkeypatch):
     from config import load_settings
     s = load_settings()
     assert s.admin_password_hash == "$2b$12$somebcrypthash"
-    assert s.db_path == "gifraffe.db"  # default
+    assert s.db_path.endswith("gifraffe.db")  # default

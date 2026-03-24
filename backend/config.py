@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 @dataclass
 class Settings:
@@ -22,6 +23,6 @@ def load_settings() -> Settings:
     return Settings(
         admin_password_hash=admin_hash,
         session_secret=session_secret,
-        db_path=os.environ.get("DB_PATH", "gifraffe.db"),
-        storage_dir=os.environ.get("STORAGE_DIR", "storage"),
+        db_path=os.environ.get("DB_PATH", str(Path(__file__).parent / "gifraffe.db")),
+        storage_dir=os.environ.get("STORAGE_DIR", str(Path(__file__).parent / "storage")),
     )

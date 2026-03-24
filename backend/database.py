@@ -26,6 +26,15 @@ def init_db(db_path: str) -> None:
     conn.close()
 
 def get_conn(db_path: str) -> sqlite3.Connection:
+    """Return a SQLite connection. Caller is responsible for closing it.
+    In FastAPI routes, use as a dependency with yield:
+        def get_db():
+            conn = get_conn(settings.db_path)
+            try:
+                yield conn
+            finally:
+                conn.close()
+    """
     conn = sqlite3.connect(db_path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
