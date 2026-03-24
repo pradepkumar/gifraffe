@@ -36,13 +36,14 @@ async def submit_gif(req: SubmitRequest, request: Request):
         conn.execute(
             """INSERT INTO gifs
                (id, title, description, tags, submitter_name, submitter_email,
-                file_path, status, created_at, source_url, source_start, source_end)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                file_path, status, created_at, source_url, source_start, source_end, category)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 gif_id, req.title, req.description, tags_str,
                 req.submitter_name, req.submitter_email,
                 str(dst), "pending", now,
                 job["source_url"], job["source_start"], job["source_end"],
+                req.category,
             )
         )
         conn.commit()

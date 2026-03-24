@@ -26,6 +26,7 @@ def test_submit_returns_gif_id(client, done_job):
         "title": "Funny scene",
         "tags": ["funny", "comedy"],
         "submitter_name": "Ravi",
+        "category": "Tamil",
     })
     assert resp.status_code == 201
     assert "gif_id" in resp.json()
@@ -38,19 +39,20 @@ def test_submit_moves_file_to_pending(client, done_job):
         "title": "Funny scene",
         "tags": ["funny", "comedy"],
         "submitter_name": "Ravi",
+        "category": "Tamil",
     })
     pending_files = list(Path(storage_dir, "pending").iterdir())
     assert len(pending_files) == 1
 
 def test_submit_returns_409_on_double_submit(client, done_job):
-    payload = {"job_id": done_job, "title": "T", "tags": ["t"], "submitter_name": "R"}
+    payload = {"job_id": done_job, "title": "T", "tags": ["t"], "submitter_name": "R", "category": "Tamil"}
     client.post("/api/submit", json=payload)
     resp = client.post("/api/submit", json=payload)
     assert resp.status_code == 409
 
 def test_submit_returns_404_for_unknown_job(client):
     resp = client.post("/api/submit", json={
-        "job_id": "unknown", "title": "T", "tags": ["t"], "submitter_name": "R"
+        "job_id": "unknown", "title": "T", "tags": ["t"], "submitter_name": "R", "category": "Tamil"
     })
     assert resp.status_code == 404
 
@@ -58,6 +60,26 @@ def test_submit_returns_400_if_job_not_done(client):
     from jobs import job_store
     job_id = job_store.create("https://youtube.com/watch?v=abc", 0, 5)
     resp = client.post("/api/submit", json={
-        "job_id": job_id, "title": "T", "tags": ["t"], "submitter_name": "R"
+        "job_id": job_id, "title": "T", "tags": ["t"], "submitter_name": "R", "category": "Tamil"
     })
     assert resp.status_code == 400
+
+def test_submit_rejects_invalid_category(client, done_job):
+    resp = client.post("/api/submit", json={
+        "job_id": done_job,
+        "title": "T",
+        "tags": ["t"],
+        "submitter_name": "R",
+        "category": "Invalid",
+    })
+    assert resp.status_code == 422
+
+def test_submit_accepts_valid_category(client, done_job):
+    resp = client.post("/api/submit", json={
+        "job_id": done_job,
+        "title": "T",
+        "tags": ["t"],
+        "submitter_name": "R",
+        "category": "Tamil",
+    })
+    assert resp.status_code == 201
