@@ -8,6 +8,7 @@ export default function Admin() {
   const [loginError, setLoginError] = useState(null)
   const [queue, setQueue] = useState([])
   const [loading, setLoading] = useState(false)
+  const [actionInProgress, setActionInProgress] = useState(null)
 
   const loadQueue = async () => {
     setLoading(true)
@@ -39,14 +40,28 @@ export default function Admin() {
   }
 
   const handleApprove = async (id) => {
-    await approveGif(id)
-    setQueue(q => q.filter(g => g.id !== id))
+    setActionInProgress(id)
+    try {
+      await approveGif(id)
+      setQueue(q => q.filter(g => g.id !== id))
+    } catch (e) {
+      alert('Failed to approve — ' + e.message)
+    } finally {
+      setActionInProgress(null)
+    }
   }
 
   const handleReject = async (id) => {
     if (!confirm('Reject and delete this GIF?')) return
-    await rejectGif(id)
-    setQueue(q => q.filter(g => g.id !== id))
+    setActionInProgress(id)
+    try {
+      await rejectGif(id)
+      setQueue(q => q.filter(g => g.id !== id))
+    } catch (e) {
+      alert('Failed to reject — ' + e.message)
+    } finally {
+      setActionInProgress(null)
+    }
   }
 
   if (!authed) {
@@ -105,10 +120,16 @@ export default function Admin() {
               </a>
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => handleApprove(gif.id)} style={{ flex: 1, background: '#27ae60', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 700, cursor: 'pointer' }}>
+              <button
+                onClick={() => handleApprove(gif.id)}
+                disabled={actionInProgress === gif.id}
+                style={{ flex: 1, background: actionInProgress === gif.id ? '#ccc' : '#27ae60', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
                 Approve
               </button>
-              <button onClick={() => handleReject(gif.id)} style={{ flex: 1, background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 700, cursor: 'pointer' }}>
+              <button
+                onClick={() => handleReject(gif.id)}
+                disabled={actionInProgress === gif.id}
+                style={{ flex: 1, background: actionInProgress === gif.id ? '#ccc' : '#e74c3c', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
                 Reject
               </button>
             </div>
