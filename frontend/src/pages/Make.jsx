@@ -122,7 +122,7 @@ export default function Make() {
 
   return (
     <div style={{ maxWidth: 560, margin: '0 auto', padding: '24px 16px' }}>
-      <h2 style={{ marginBottom: 6, color: 'var(--color-brown-mid)' }}>Make a GIF</h2>
+      <h2 style={{ marginBottom: 6, color: 'var(--color-brown-mid)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>Make a GIF</h2>
       <p style={{ color: 'var(--color-brown-faint)', marginBottom: 20, fontSize: '0.9rem' }}>
         Paste a YouTube URL and set a start and end time (max 10 seconds).
       </p>
@@ -190,7 +190,7 @@ export default function Make() {
           )}
           {showForm && !submitDone && (
             <div style={{ marginTop: 16 }}>
-              <h3 style={{ marginBottom: 14, color: 'var(--color-brown-mid)' }}>Submit details</h3>
+              <h3 style={{ marginBottom: 14, color: 'var(--color-brown-mid)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>Submit details</h3>
               <MetadataForm onSubmit={handleSubmit} loading={submitLoading} categories={CATEGORIES} />
             </div>
           )}
@@ -206,7 +206,7 @@ const inputStyle = {
   background: 'var(--color-cream-card)',
   boxSizing: 'border-box',
 }
-const labelStyle = { display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-brown-mid)', marginBottom: 4 }
+const labelStyle = { display: 'block', fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-brown-mid)', marginBottom: 4 }
 const actionBtn = (bg, color, border = 'none') => ({
   background: bg, color, border, borderRadius: 'var(--radius-md)',
   padding: '11px 18px', fontWeight: 700, cursor: 'pointer',

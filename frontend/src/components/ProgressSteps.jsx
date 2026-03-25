@@ -21,7 +21,7 @@ export default function ProgressSteps({ currentStep }) {
                 {done ? '✓' : i + 1}
               </div>
               <span style={{
-                fontSize: '0.7rem', marginTop: 4, textAlign: 'center',
+                fontSize: 'var(--text-xs)', marginTop: 4, textAlign: 'center',
                 color: done || active ? 'var(--color-brown-light)' : 'var(--color-brown-faint)',
                 fontWeight: active ? 700 : 400,
               }}>

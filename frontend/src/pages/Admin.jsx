@@ -95,7 +95,7 @@ export default function Admin() {
   if (!authed) {
     return (
       <div style={{ maxWidth: 360, margin: '60px auto', padding: 24 }}>
-        <h2 style={{ marginBottom: 20, color: 'var(--color-brown-mid)' }}>Admin Login</h2>
+        <h2 style={{ marginBottom: 20, color: 'var(--color-brown-mid)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>Admin Login</h2>
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input
             type="password"
@@ -118,7 +118,7 @@ export default function Admin() {
   return (
     <div style={{ maxWidth: 700, margin: '0 auto', padding: '24px 16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ color: 'var(--color-brown-mid)' }}>Approval Queue</h2>
+        <h2 style={{ color: 'var(--color-brown-mid)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>Approval Queue</h2>
         <button onClick={loadQueue} style={{ background: 'var(--color-cream-chip)', border: 'none', borderRadius: 'var(--radius-sm)', padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>
           Refresh
         </button>
@@ -170,7 +170,7 @@ export default function Admin() {
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
-            <p style={{ fontSize: '0.82rem', color: 'var(--color-brown-faint)', marginBottom: 12 }}>
+            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-brown-faint)', marginBottom: 12 }}>
               By {gif.submitter_name}{gif.submitter_email ? ` (${gif.submitter_email})` : ''} ·{' '}
               <a href={gif.source_url} target="_blank" rel="noreferrer" style={{ color: 'var(--color-amber)' }}>
                 Source ({gif.source_start}s – {gif.source_end}s)

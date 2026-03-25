@@ -10,7 +10,7 @@ export default function TagChip({ tag, onClick }) {
         color: 'var(--color-brown-light)',
         borderRadius: 'var(--radius-pill)',
         padding: '3px 10px',
-        fontSize: '0.78rem',
+        fontSize: 'var(--text-xs)',
         fontWeight: 600,
         cursor: onClick ? 'pointer' : 'default',
         userSelect: 'none',

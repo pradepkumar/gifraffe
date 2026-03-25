@@ -115,7 +115,7 @@ export default function GifModal({ gif, onClose, onTagClick }) {
         </button>
         <img src={gif.gif_url} alt={gif.title} style={{ width: '100%', display: 'block' }} />
         <div style={{ padding: 16 }}>
-          <h3 id="gif-modal-title" style={{ marginBottom: 8 }}>{gif.title}</h3>
+          <h3 id="gif-modal-title" style={{ marginBottom: 8, fontFamily: 'var(--font-display)', fontWeight: 700 }}>{gif.title}</h3>
           {gif.description && (
             <p style={{ color: 'var(--color-brown-light)', fontSize: '0.9rem', marginBottom: 10 }}>{gif.description}</p>
           )}
@@ -132,7 +132,7 @@ export default function GifModal({ gif, onClose, onTagClick }) {
               Share
             </button>
           </div>
-          <p style={{ marginTop: 10, fontSize: '0.78rem', color: 'var(--color-brown-faint)' }}>
+          <p style={{ marginTop: 10, fontSize: 'var(--text-xs)', color: 'var(--color-brown-faint)' }}>
             Submitted by {gif.submitter_name}
           </p>
         </div>

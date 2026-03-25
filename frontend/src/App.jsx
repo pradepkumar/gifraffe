@@ -14,8 +14,9 @@ const styles = {
   },
   logo: {
     color: '#fff',
+    fontFamily: 'var(--font-display)',
     fontWeight: 800,
-    fontSize: '1.5rem',
+    fontSize: 'var(--text-2xl)',
     textDecoration: 'none',
     letterSpacing: '-0.5px',
   },

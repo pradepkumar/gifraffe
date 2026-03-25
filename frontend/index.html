@@ -4,9 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gifraffe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fdf8f0; color: #2c1a0e; }
+      body { font-family: 'DM Sans', sans-serif; background: #fdf8f0; color: #2c1a0e; }
       :focus-visible {
         outline: 2px solid #d4880a;
         outline-offset: 2px;
@@ -41,6 +44,16 @@
         --radius-md: 10px;
         --radius-lg: 12px;
         --radius-pill: 20px;
+
+        /* Typography */
+        --font-display: 'Baloo 2', sans-serif;
+        --font-body: 'DM Sans', sans-serif;
+        --text-xs: 0.75rem;    /* 12px — captions, bylines */
+        --text-sm: 0.825rem;   /* ~13px — tags, secondary labels */
+        --text-base: 1rem;     /* 16px — body, inputs */
+        --text-lg: 1.125rem;   /* 18px — subheadings */
+        --text-xl: 1.375rem;   /* 22px — page headings */
+        --text-2xl: 1.625rem;  /* 26px — logo */
       }
     </style>
   </head>
