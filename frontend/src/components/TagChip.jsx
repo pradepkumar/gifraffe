@@ -9,12 +9,15 @@ export default function TagChip({ tag, onClick }) {
         background: 'var(--color-cream-chip)',
         color: 'var(--color-brown-light)',
         borderRadius: 'var(--radius-pill)',
-        padding: '3px 10px',
+        padding: '6px 12px',
         fontSize: 'var(--text-xs)',
         fontWeight: 600,
         cursor: onClick ? 'pointer' : 'default',
         userSelect: 'none',
         border: '1px solid var(--color-amber-muted)',
+        minHeight: '32px',
+        display: 'inline-flex',
+        alignItems: 'center',
       }}
     >
       {tag}

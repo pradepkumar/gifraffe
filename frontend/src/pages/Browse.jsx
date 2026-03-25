@@ -71,7 +71,7 @@ export default function Browse() {
                 background: active ? 'var(--color-amber)' : 'var(--color-cream-chip)',
                 color: active ? '#fff' : 'var(--color-brown-light)',
                 border: 'none', borderRadius: 'var(--radius-pill)',
-                padding: '6px 16px', fontWeight: 600,
+                padding: '10px 18px', fontWeight: 600,
                 cursor: 'pointer', fontSize: '0.9rem',
               }}
             >

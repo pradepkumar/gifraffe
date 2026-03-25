@@ -98,6 +98,10 @@ export default function GifModal({ gif, onClose, onTagClick }) {
           width: '100%', overflow: 'hidden',
           boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
           position: 'relative',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <button
@@ -113,7 +117,7 @@ export default function GifModal({ gif, onClose, onTagClick }) {
         >
           ×
         </button>
-        <img src={gif.gif_url} alt={gif.title} style={{ width: '100%', display: 'block' }} />
+        <img src={gif.gif_url} alt={gif.title} style={{ width: '100%', display: 'block', maxHeight: '55vh', objectFit: 'contain' }} />
         <div style={{ padding: 16 }}>
           <h3 id="gif-modal-title" style={{ marginBottom: 8, fontFamily: 'var(--font-display)', fontWeight: 700 }}>{gif.title}</h3>
           {gif.description && (

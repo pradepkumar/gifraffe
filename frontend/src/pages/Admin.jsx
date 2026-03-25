@@ -180,13 +180,13 @@ export default function Admin() {
               <button
                 onClick={() => handleApprove(gif.id)}
                 disabled={actionInProgress === gif.id}
-                style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-success)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '10px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-success)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
                 Approve
               </button>
               <button
                 onClick={() => handleReject(gif.id)}
                 disabled={actionInProgress === gif.id}
-                style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-error)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '10px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-error)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
                 Reject
               </button>
             </div>

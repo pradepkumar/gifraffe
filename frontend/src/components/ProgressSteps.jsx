@@ -12,7 +12,7 @@ export default function ProgressSteps({ currentStep }) {
           <div key={step} style={{ display: 'flex', alignItems: 'center', flex: i < STEPS.length - 1 ? 1 : 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 60 }}>
               <div style={{
-                width: 28, height: 28, borderRadius: '50%',
+                width: 36, height: 36, borderRadius: '50%',
                 background: done ? 'var(--color-amber)' : active ? 'var(--color-amber-light)' : 'var(--color-amber-muted)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#fff', fontSize: '0.75rem', fontWeight: 700,
