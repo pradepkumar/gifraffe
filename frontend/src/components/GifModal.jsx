@@ -136,7 +136,7 @@ export default function GifModal({ gif, onClose, onTagClick }) {
               Share
             </button>
           </div>
-          <p style={{ marginTop: 10, fontSize: 'var(--text-xs)', color: 'var(--color-brown-faint)' }}>
+          <p style={{ marginTop: 10, fontSize: 'var(--text-xs)', color: 'var(--color-brown-light)' }}>
             Submitted by {gif.submitter_name}
           </p>
         </div>

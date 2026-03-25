@@ -123,8 +123,8 @@ export default function Make() {
   return (
     <div style={{ maxWidth: 560, margin: '0 auto', padding: '24px 16px' }}>
       <h2 style={{ marginBottom: 6, color: 'var(--color-brown-mid)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>Make a GIF</h2>
-      <p style={{ color: 'var(--color-brown-faint)', marginBottom: 20, fontSize: '0.9rem' }}>
-        Paste a YouTube URL and set a start and end time (max 10 seconds).
+      <p style={{ color: 'var(--color-brown-faint)', marginBottom: 20, fontSize: 'var(--text-sm)' }}>
+        Paste a YouTube URL, pick your moment (up to 10 seconds), and we'll turn it into a GIF.
       </p>
 
       <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>

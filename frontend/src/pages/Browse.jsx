@@ -52,12 +52,11 @@ export default function Browse() {
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px 16px' }}>
-      {/* Giraffe spot accent */}
-      <div style={{ textAlign: 'center', marginBottom: 24 }}>
-        <p style={{ color: 'var(--color-brown-faint)', fontSize: '0.9rem' }}>
-          {total > 0 ? `${total} GIF${total !== 1 ? 's' : ''} in the library` : 'Search or browse GIFs below'}
+      {total > 0 && (
+        <p style={{ color: 'var(--color-brown-faint)', fontSize: 'var(--text-sm)', marginBottom: 20, textAlign: 'center' }}>
+          {total} GIF{total !== 1 ? 's' : ''} in the library
         </p>
-      </div>
+      )}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
         {['All', ...CATEGORIES].map(c => {
