@@ -88,7 +88,7 @@ export default function Browse() {
             style={{
               flex: 1, padding: '12px 16px', borderRadius: 10,
               border: '2px solid #e8c97a', fontSize: '1rem',
-              outline: 'none', background: '#fffdf5',
+              background: '#fffdf5',
             }}
           />
           <button type="submit" style={{

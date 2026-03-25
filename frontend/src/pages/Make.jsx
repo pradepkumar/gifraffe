@@ -132,6 +132,7 @@ export default function Make() {
           value={url}
           onChange={e => setUrl(e.target.value)}
           placeholder="https://www.youtube.com/watch?v=..."
+          aria-label="YouTube URL"
           required
           style={inputStyle}
         />
@@ -201,7 +202,7 @@ export default function Make() {
 const inputStyle = {
   width: '100%', padding: '11px 14px', borderRadius: 10,
   border: '2px solid #e8c97a', fontSize: '1rem',
-  outline: 'none', background: '#fffdf5',
+  background: '#fffdf5',
   boxSizing: 'border-box',
 }
 const labelStyle = { display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#5a3a10', marginBottom: 4 }

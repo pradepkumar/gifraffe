@@ -1,12 +1,53 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import TagChip from './TagChip.jsx'
 
 export default function GifModal({ gif, onClose, onTagClick }) {
+  const dialogRef = useRef(null)
+  const closeButtonRef = useRef(null)
+
+  // Escape key + focus management + focus trap
   useEffect(() => {
     if (!gif) return
-    const handler = (e) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
+
+    // Move focus into modal on open
+    if (closeButtonRef.current) {
+      closeButtonRef.current.focus()
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+
+      if (e.key === 'Tab') {
+        const dialog = dialogRef.current
+        if (!dialog) return
+        const focusable = dialog.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        const focusableList = Array.from(focusable)
+        if (focusableList.length === 0) return
+
+        const first = focusableList[0]
+        const last = focusableList[focusableList.length - 1]
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault()
+            first.focus()
+          }
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [gif, onClose])
 
   if (!gif) return null
@@ -43,16 +84,34 @@ export default function GifModal({ gif, onClose, onTagClick }) {
       }}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="gif-modal-title"
         onClick={e => e.stopPropagation()}
         style={{
           background: '#fff', borderRadius: 16, maxWidth: 560,
           width: '100%', overflow: 'hidden',
           boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          position: 'relative',
         }}
       >
+        <button
+          ref={closeButtonRef}
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            position: 'absolute', top: 10, right: 12,
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: '1.4rem', fontWeight: 700, color: '#5a3a10',
+            lineHeight: 1, padding: '4px 8px', borderRadius: 6,
+          }}
+        >
+          ×
+        </button>
         <img src={gif.gif_url} alt={gif.title} style={{ width: '100%', display: 'block' }} />
         <div style={{ padding: 16 }}>
-          <h3 style={{ marginBottom: 8 }}>{gif.title}</h3>
+          <h3 id="gif-modal-title" style={{ marginBottom: 8 }}>{gif.title}</h3>
           {gif.description && (
             <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: 10 }}>{gif.description}</p>
           )}

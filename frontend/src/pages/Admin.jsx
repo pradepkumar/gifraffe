@@ -9,7 +9,6 @@ const inlineInputStyle = {
   border: '2px solid #e8c97a',
   background: '#fffdf5',
   fontSize: '0.9rem',
-  outline: 'none',
   boxSizing: 'border-box',
 }
 
@@ -103,8 +102,9 @@ export default function Admin() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="Password"
+            aria-label="Admin password"
             required
-            style={{ padding: '12px', borderRadius: 10, border: '2px solid #e8c97a', fontSize: '1rem', outline: 'none' }}
+            style={{ padding: '12px', borderRadius: 10, border: '2px solid #e8c97a', fontSize: '1rem' }}
           />
           {loginError && <p style={{ color: '#c0392b', fontSize: '0.9rem' }}>{loginError}</p>}
           <button type="submit" style={{ background: '#d4880a', color: '#fff', border: 'none', borderRadius: 10, padding: 13, fontWeight: 700, cursor: 'pointer', fontSize: '1rem' }}>
@@ -144,6 +144,7 @@ export default function Admin() {
                 onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], title: e.target.value } }))}
                 style={inlineInputStyle}
                 placeholder="Title"
+                aria-label="GIF title"
               />
               <input
                 type="text"
@@ -151,17 +152,20 @@ export default function Admin() {
                 onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], tags: e.target.value } }))}
                 style={inlineInputStyle}
                 placeholder="tag1, tag2"
+                aria-label="Tags (comma separated)"
               />
               <textarea
                 value={edits[gif.id]?.description ?? ''}
                 onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], description: e.target.value } }))}
                 style={{ ...inlineInputStyle, resize: 'vertical', minHeight: 60 }}
                 placeholder="Description (optional)"
+                aria-label="Description"
               />
               <select
                 value={edits[gif.id]?.category ?? 'Other'}
                 onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], category: e.target.value } }))}
                 style={inlineInputStyle}
+                aria-label="Category"
               >
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>

@@ -3,7 +3,7 @@ import { useState } from 'react'
 const fieldStyle = {
   width: '100%', padding: '10px 12px', borderRadius: 8,
   border: '2px solid #e8c97a', fontSize: '0.95rem',
-  outline: 'none', background: '#fffdf5', resize: 'vertical',
+  background: '#fffdf5', resize: 'vertical',
   boxSizing: 'border-box',
 }
 

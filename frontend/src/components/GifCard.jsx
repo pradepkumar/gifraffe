@@ -3,7 +3,11 @@ import TagChip from './TagChip.jsx'
 export default function GifCard({ gif, onTagClick, onClick }) {
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={gif.title}
       onClick={() => onClick(gif)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(gif) } }}
       style={{
         background: '#fff',
         borderRadius: 12,
