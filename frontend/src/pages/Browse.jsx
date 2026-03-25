@@ -48,6 +48,8 @@ export default function Browse() {
     setQuery(tag)
   }
 
+  const handleModalClose = useCallback(() => setSelected(null), [])
+
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px 16px' }}>
       {/* Giraffe spot accent */}
@@ -127,7 +129,7 @@ export default function Browse() {
 
       <GifModal
         gif={selected}
-        onClose={() => setSelected(null)}
+        onClose={handleModalClose}
         onTagClick={handleTagClick}
       />
     </div>

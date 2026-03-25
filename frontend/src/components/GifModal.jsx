@@ -9,10 +9,10 @@ export default function GifModal({ gif, onClose, onTagClick }) {
   useEffect(() => {
     if (!gif) return
 
+    const previouslyFocused = document.activeElement
+
     // Move focus into modal on open
-    if (closeButtonRef.current) {
-      closeButtonRef.current.focus()
-    }
+    closeButtonRef.current?.focus()
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -47,7 +47,10 @@ export default function GifModal({ gif, onClose, onTagClick }) {
     }
 
     document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      previouslyFocused?.focus()
+    }
   }, [gif, onClose])
 
   if (!gif) return null
@@ -76,6 +79,7 @@ export default function GifModal({ gif, onClose, onTagClick }) {
 
   return (
     <div
+      role="presentation"
       onClick={onClose}
       style={{
         position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
