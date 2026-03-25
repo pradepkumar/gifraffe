@@ -1,7 +1,8 @@
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from models import GenerateRequest, JobResponse
 from jobs import job_store
 from gif_generator import is_youtube_url, validate_duration, generate_gif
+from rate_limiter import limit_generate
 
 router = APIRouter()
 
@@ -22,7 +23,7 @@ def run_generate_job(job_id: str, url: str, start: float, end: float, storage_di
     except Exception as e:
         job_store.fail(job_id, str(e))
 
-@router.post("/api/generate", status_code=202)
+@router.post("/api/generate", status_code=202, dependencies=[Depends(limit_generate)])
 async def create_generate_job(
     req: GenerateRequest,
     background_tasks: BackgroundTasks,

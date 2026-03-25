@@ -1,11 +1,12 @@
 from pathlib import Path
-from fastapi import APIRouter, Body, Cookie, HTTPException, Request, Response
+from fastapi import APIRouter, Body, Cookie, Depends, HTTPException, Request, Response
 from fastapi.responses import FileResponse
 import bcrypt
 from itsdangerous import TimestampSigner, BadSignature, SignatureExpired
 from models import AdminLoginRequest, AdminGifItem, ApproveRequest
 from database import get_conn
 from storage import move_file, delete_file
+from rate_limiter import limit_admin_login
 
 router = APIRouter()
 SESSION_COOKIE = "gifraffe_session"
@@ -23,7 +24,7 @@ def _require_auth(request: Request, gifraffe_session: str | None = Cookie(defaul
     except (BadSignature, SignatureExpired):
         raise HTTPException(401, detail="Session expired or invalid")
 
-@router.post("/api/admin/login")
+@router.post("/api/admin/login", dependencies=[Depends(limit_admin_login)])
 async def admin_login(req: AdminLoginRequest, request: Request, response: Response):
     settings = request.app.state.settings
     if not bcrypt.checkpw(req.password.encode(), settings.admin_password_hash.encode()):
