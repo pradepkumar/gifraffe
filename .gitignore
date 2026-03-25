@@ -15,3 +15,6 @@ frontend/dist/
 
 # Superpowers
 .superpowers/
+
+# Worktrees
+.worktrees/
