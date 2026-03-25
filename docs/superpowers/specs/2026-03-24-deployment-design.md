@@ -41,8 +41,10 @@ No HTTPS for now. The admin password will be sent in plaintext over HTTP — acc
 ### Nginx (reverse proxy)
 
 Nginx listens on port 80 and:
-- Forwards all requests to uvicorn on `localhost:8000`
 - Serves `/static/gifs/` and `/static/temp/` directly from disk (bypasses Python for GIF file serving)
+- Forwards all other requests to uvicorn on `localhost:8000`
+
+FastAPI's catch-all route serves the built frontend from `backend/static_frontend/`. Vite is already configured with `outDir: '../backend/static_frontend'` so `npm run build` outputs there automatically — no extra config needed. Nginx does not need a separate block for the frontend assets; uvicorn handles them.
 
 ### uvicorn (systemd service)
 
@@ -95,9 +97,9 @@ This prevents a single user from queueing many CPU-heavy GIF generation jobs.
 
 ### Fail2ban
 
-Configured to:
-- Ban IPs after 5 failed SSH login attempts within 10 minutes (ban duration: 1 hour)
-- Ban IPs after 10 failed requests to `/api/admin/login` within 10 minutes (ban duration: 1 hour)
+Configured to ban IPs after 5 failed SSH login attempts within 10 minutes (ban duration: 1 hour). This uses fail2ban's built-in `sshd` jail and requires no custom log parsing.
+
+The admin login endpoint (`/api/admin/login`) is protected by the FastAPI rate limiter instead (same in-memory dict used for `/api/generate`): maximum 10 attempts per IP per hour, returning HTTP 429 on excess. This avoids the need for fail2ban to parse application logs.
 
 ### UFW Firewall
 
