@@ -5,7 +5,7 @@ import Admin from './pages/Admin.jsx'
 
 const styles = {
   header: {
-    background: '#d4880a',
+    background: 'var(--color-amber)',
     padding: '12px 20px',
     display: 'flex',
     alignItems: 'center',

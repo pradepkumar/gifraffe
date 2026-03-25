@@ -54,7 +54,7 @@ export default function Browse() {
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px 16px' }}>
       {/* Giraffe spot accent */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
-        <p style={{ color: '#b8832a', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--color-brown-faint)', fontSize: '0.9rem' }}>
           {total > 0 ? `${total} GIF${total !== 1 ? 's' : ''} in the library` : 'Search or browse GIFs below'}
         </p>
       </div>
@@ -68,9 +68,9 @@ export default function Browse() {
               key={c}
               onClick={() => setCategory(val)}
               style={{
-                background: active ? '#d4880a' : '#f5e6c0',
-                color: active ? '#fff' : '#7a4f1a',
-                border: 'none', borderRadius: 20,
+                background: active ? 'var(--color-amber)' : 'var(--color-cream-chip)',
+                color: active ? '#fff' : 'var(--color-brown-light)',
+                border: 'none', borderRadius: 'var(--radius-pill)',
                 padding: '6px 16px', fontWeight: 600,
                 cursor: 'pointer', fontSize: '0.9rem',
               }}
@@ -88,14 +88,14 @@ export default function Browse() {
             onChange={e => setQuery(e.target.value)}
             placeholder="Search GIFs by title, tags, description..."
             style={{
-              flex: 1, padding: '12px 16px', borderRadius: 10,
-              border: '2px solid #e8c97a', fontSize: '1rem',
-              background: '#fffdf5',
+              flex: 1, padding: '12px 16px', borderRadius: 'var(--radius-md)',
+              border: '2px solid var(--color-amber-muted)', fontSize: '1rem',
+              background: 'var(--color-cream-card)',
             }}
           />
           <button type="submit" style={{
-            background: '#d4880a', color: '#fff', border: 'none',
-            borderRadius: 10, padding: '12px 20px', fontWeight: 700,
+            background: 'var(--color-amber)', color: '#fff', border: 'none',
+            borderRadius: 'var(--radius-md)', padding: '12px 20px', fontWeight: 700,
             cursor: 'pointer', fontSize: '1rem',
           }}>
             Search
@@ -103,12 +103,12 @@ export default function Browse() {
         </div>
       </form>
 
-      {loading && <p style={{ textAlign: 'center', color: '#b8832a' }}>Loading...</p>}
-      {error && <p style={{ textAlign: 'center', color: '#c0392b' }}>{error}</p>}
+      {loading && <p style={{ textAlign: 'center', color: 'var(--color-brown-faint)' }}>Loading...</p>}
+      {error && <p style={{ textAlign: 'center', color: 'var(--color-error)' }}>{error}</p>}
 
       {!loading && gifs.length === 0 && (
-        <p style={{ textAlign: 'center', color: '#999', marginTop: 40 }}>
-          No GIFs found. <a href="/make" style={{ color: '#d4880a' }}>Make one!</a>
+        <p style={{ textAlign: 'center', color: 'var(--color-brown-faint)', marginTop: 40 }}>
+          No GIFs found. <a href="/make" style={{ color: 'var(--color-amber)' }}>Make one!</a>
         </p>
       )}
 

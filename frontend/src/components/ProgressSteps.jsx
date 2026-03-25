@@ -13,7 +13,7 @@ export default function ProgressSteps({ currentStep }) {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 60 }}>
               <div style={{
                 width: 28, height: 28, borderRadius: '50%',
-                background: done ? '#d4880a' : active ? '#f5a623' : '#e8c97a',
+                background: done ? 'var(--color-amber)' : active ? 'var(--color-amber-light)' : 'var(--color-amber-muted)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#fff', fontSize: '0.75rem', fontWeight: 700,
                 transition: 'background 0.3s',
@@ -22,7 +22,7 @@ export default function ProgressSteps({ currentStep }) {
               </div>
               <span style={{
                 fontSize: '0.7rem', marginTop: 4, textAlign: 'center',
-                color: done || active ? '#7a4f1a' : '#bbb',
+                color: done || active ? 'var(--color-brown-light)' : 'var(--color-brown-faint)',
                 fontWeight: active ? 700 : 400,
               }}>
                 {step}
@@ -31,7 +31,7 @@ export default function ProgressSteps({ currentStep }) {
             {i < STEPS.length - 1 && (
               <div style={{
                 flex: 1, height: 2,
-                background: done ? '#d4880a' : '#e8c97a',
+                background: done ? 'var(--color-amber)' : 'var(--color-amber-muted)',
                 marginBottom: 20, transition: 'background 0.3s',
               }} />
             )}

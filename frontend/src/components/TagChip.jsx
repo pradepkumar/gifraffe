@@ -6,15 +6,15 @@ export default function TagChip({ tag, onClick }) {
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(tag) } } : undefined}
       style={{
-        background: '#f5e6c0',
-        color: '#7a4f1a',
-        borderRadius: 20,
+        background: 'var(--color-cream-chip)',
+        color: 'var(--color-brown-light)',
+        borderRadius: 'var(--radius-pill)',
         padding: '3px 10px',
         fontSize: '0.78rem',
         fontWeight: 600,
         cursor: onClick ? 'pointer' : 'default',
         userSelect: 'none',
-        border: '1px solid #e8c97a',
+        border: '1px solid var(--color-amber-muted)',
       }}
     >
       {tag}

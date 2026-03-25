@@ -122,8 +122,8 @@ export default function Make() {
 
   return (
     <div style={{ maxWidth: 560, margin: '0 auto', padding: '24px 16px' }}>
-      <h2 style={{ marginBottom: 6, color: '#5a3a10' }}>Make a GIF</h2>
-      <p style={{ color: '#b8832a', marginBottom: 20, fontSize: '0.9rem' }}>
+      <h2 style={{ marginBottom: 6, color: 'var(--color-brown-mid)' }}>Make a GIF</h2>
+      <p style={{ color: 'var(--color-brown-faint)', marginBottom: 20, fontSize: '0.9rem' }}>
         Paste a YouTube URL and set a start and end time (max 10 seconds).
       </p>
 
@@ -150,8 +150,9 @@ export default function Make() {
           type="submit"
           disabled={state === 'generating'}
           style={{
-            background: state === 'generating' ? '#ccc' : '#d4880a',
-            color: '#fff', border: 'none', borderRadius: 10, padding: '13px',
+            background: state === 'generating' ? 'var(--color-disabled)' : 'var(--color-amber)',
+            color: state === 'generating' ? 'var(--color-disabled-text)' : '#fff',
+            border: 'none', borderRadius: 'var(--radius-md)', padding: '13px',
             fontWeight: 700, cursor: state === 'generating' ? 'not-allowed' : 'pointer',
             fontSize: '1rem',
           }}
@@ -165,31 +166,31 @@ export default function Make() {
       )}
 
       {error && (
-        <div style={{ background: '#fff0f0', border: '1px solid #f5c6c6', borderRadius: 10, padding: 14, color: '#c0392b', marginBottom: 16 }}>
+        <div style={{ background: 'var(--color-error-bg)', border: '1px solid var(--color-error-border)', borderRadius: 'var(--radius-md)', padding: 14, color: 'var(--color-error)', marginBottom: 16 }}>
           {error}
         </div>
       )}
 
       {state === 'done' && gifUrl && (
         <div>
-          <img src={gifUrl} alt="Generated GIF" style={{ width: '100%', borderRadius: 12, marginBottom: 14 }} />
+          <img src={gifUrl} alt="Generated GIF" style={{ width: '100%', borderRadius: 'var(--radius-lg)', marginBottom: 14 }} />
           <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
-            <button onClick={handleDownload} style={actionBtn('#d4880a', '#fff')}>Download GIF</button>
-            <button onClick={handleShare} style={actionBtn('#f5e6c0', '#7a4f1a')}>Share</button>
+            <button onClick={handleDownload} style={actionBtn('var(--color-amber)', '#fff')}>Download GIF</button>
+            <button onClick={handleShare} style={actionBtn('var(--color-cream-chip)', 'var(--color-brown-light)')}>Share</button>
           </div>
           {!submitDone && !showForm && (
-            <button onClick={() => setShowForm(true)} style={actionBtn('#fff', '#d4880a', '2px solid #d4880a')}>
+            <button onClick={() => setShowForm(true)} style={actionBtn('#fff', 'var(--color-amber)', '2px solid var(--color-amber)')}>
               Submit to Gifraffe
             </button>
           )}
           {submitDone && (
-            <div style={{ background: '#f0fff4', border: '1px solid #a3e4b0', borderRadius: 10, padding: 14, color: '#27ae60' }}>
+            <div style={{ background: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', borderRadius: 'var(--radius-md)', padding: 14, color: 'var(--color-success)' }}>
               Submitted! It will appear in the library once approved.
             </div>
           )}
           {showForm && !submitDone && (
             <div style={{ marginTop: 16 }}>
-              <h3 style={{ marginBottom: 14, color: '#5a3a10' }}>Submit details</h3>
+              <h3 style={{ marginBottom: 14, color: 'var(--color-brown-mid)' }}>Submit details</h3>
               <MetadataForm onSubmit={handleSubmit} loading={submitLoading} categories={CATEGORIES} />
             </div>
           )}
@@ -200,14 +201,14 @@ export default function Make() {
 }
 
 const inputStyle = {
-  width: '100%', padding: '11px 14px', borderRadius: 10,
-  border: '2px solid #e8c97a', fontSize: '1rem',
-  background: '#fffdf5',
+  width: '100%', padding: '11px 14px', borderRadius: 'var(--radius-md)',
+  border: '2px solid var(--color-amber-muted)', fontSize: '1rem',
+  background: 'var(--color-cream-card)',
   boxSizing: 'border-box',
 }
-const labelStyle = { display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#5a3a10', marginBottom: 4 }
+const labelStyle = { display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-brown-mid)', marginBottom: 4 }
 const actionBtn = (bg, color, border = 'none') => ({
-  background: bg, color, border, borderRadius: 10,
+  background: bg, color, border, borderRadius: 'var(--radius-md)',
   padding: '11px 18px', fontWeight: 700, cursor: 'pointer',
   fontSize: '0.95rem', flex: 1,
 })

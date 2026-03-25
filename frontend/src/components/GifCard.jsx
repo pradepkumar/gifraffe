@@ -10,7 +10,7 @@ export default function GifCard({ gif, onTagClick, onClick }) {
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(gif) } }}
       style={{
         background: '#fff',
-        borderRadius: 12,
+        borderRadius: 'var(--radius-lg)',
         overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         cursor: 'pointer',

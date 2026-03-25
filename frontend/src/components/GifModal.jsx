@@ -94,7 +94,7 @@ export default function GifModal({ gif, onClose, onTagClick }) {
         aria-labelledby="gif-modal-title"
         onClick={e => e.stopPropagation()}
         style={{
-          background: '#fff', borderRadius: 16, maxWidth: 560,
+          background: '#fff', borderRadius: 'var(--radius-lg)', maxWidth: 560,
           width: '100%', overflow: 'hidden',
           boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
           position: 'relative',
@@ -107,7 +107,7 @@ export default function GifModal({ gif, onClose, onTagClick }) {
           style={{
             position: 'absolute', top: 10, right: 12,
             background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: '1.4rem', fontWeight: 700, color: '#5a3a10',
+            fontSize: '1.4rem', fontWeight: 700, color: 'var(--color-brown-mid)',
             lineHeight: 1, padding: '4px 8px', borderRadius: 6,
           }}
         >
@@ -117,7 +117,7 @@ export default function GifModal({ gif, onClose, onTagClick }) {
         <div style={{ padding: 16 }}>
           <h3 id="gif-modal-title" style={{ marginBottom: 8 }}>{gif.title}</h3>
           {gif.description && (
-            <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: 10 }}>{gif.description}</p>
+            <p style={{ color: 'var(--color-brown-light)', fontSize: '0.9rem', marginBottom: 10 }}>{gif.description}</p>
           )}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 14 }}>
             {(gif.tags ?? []).map(tag => (
@@ -125,14 +125,14 @@ export default function GifModal({ gif, onClose, onTagClick }) {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={handleDownload} style={btnStyle('#d4880a', '#fff')}>
+            <button onClick={handleDownload} style={btnStyle('var(--color-amber)', '#fff')}>
               Download GIF
             </button>
-            <button onClick={handleShare} style={btnStyle('#f5e6c0', '#7a4f1a')}>
+            <button onClick={handleShare} style={btnStyle('var(--color-cream-chip)', 'var(--color-brown-light)')}>
               Share
             </button>
           </div>
-          <p style={{ marginTop: 10, fontSize: '0.78rem', color: '#999' }}>
+          <p style={{ marginTop: 10, fontSize: '0.78rem', color: 'var(--color-brown-faint)' }}>
             Submitted by {gif.submitter_name}
           </p>
         </div>
@@ -142,6 +142,6 @@ export default function GifModal({ gif, onClose, onTagClick }) {
 }
 
 const btnStyle = (bg, color) => ({
-  background: bg, color, border: 'none', borderRadius: 8,
+  background: bg, color, border: 'none', borderRadius: 'var(--radius-sm)',
   padding: '9px 18px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem',
 })

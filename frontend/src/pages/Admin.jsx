@@ -5,9 +5,9 @@ import { CATEGORIES } from '../constants.js'
 const inlineInputStyle = {
   width: '100%',
   padding: '8px 10px',
-  borderRadius: 8,
-  border: '2px solid #e8c97a',
-  background: '#fffdf5',
+  borderRadius: 'var(--radius-sm)',
+  border: '2px solid var(--color-amber-muted)',
+  background: 'var(--color-cream-card)',
   fontSize: '0.9rem',
   boxSizing: 'border-box',
 }
@@ -95,7 +95,7 @@ export default function Admin() {
   if (!authed) {
     return (
       <div style={{ maxWidth: 360, margin: '60px auto', padding: 24 }}>
-        <h2 style={{ marginBottom: 20, color: '#5a3a10' }}>Admin Login</h2>
+        <h2 style={{ marginBottom: 20, color: 'var(--color-brown-mid)' }}>Admin Login</h2>
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input
             type="password"
@@ -104,10 +104,10 @@ export default function Admin() {
             placeholder="Password"
             aria-label="Admin password"
             required
-            style={{ padding: '12px', borderRadius: 10, border: '2px solid #e8c97a', fontSize: '1rem' }}
+            style={{ padding: '12px', borderRadius: 'var(--radius-md)', border: '2px solid var(--color-amber-muted)', fontSize: '1rem' }}
           />
-          {loginError && <p style={{ color: '#c0392b', fontSize: '0.9rem' }}>{loginError}</p>}
-          <button type="submit" style={{ background: '#d4880a', color: '#fff', border: 'none', borderRadius: 10, padding: 13, fontWeight: 700, cursor: 'pointer', fontSize: '1rem' }}>
+          {loginError && <p style={{ color: 'var(--color-error)', fontSize: '0.9rem' }}>{loginError}</p>}
+          <button type="submit" style={{ background: 'var(--color-amber)', color: '#fff', border: 'none', borderRadius: 'var(--radius-md)', padding: 13, fontWeight: 700, cursor: 'pointer', fontSize: '1rem' }}>
             Login
           </button>
         </form>
@@ -118,21 +118,21 @@ export default function Admin() {
   return (
     <div style={{ maxWidth: 700, margin: '0 auto', padding: '24px 16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ color: '#5a3a10' }}>Approval Queue</h2>
-        <button onClick={loadQueue} style={{ background: '#f5e6c0', border: 'none', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>
+        <h2 style={{ color: 'var(--color-brown-mid)' }}>Approval Queue</h2>
+        <button onClick={loadQueue} style={{ background: 'var(--color-cream-chip)', border: 'none', borderRadius: 'var(--radius-sm)', padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>
           Refresh
         </button>
       </div>
 
-      {loading && <p style={{ color: '#b8832a' }}>Loading...</p>}
+      {loading && <p style={{ color: 'var(--color-brown-faint)' }}>Loading...</p>}
 
       {!loading && queue.length === 0 && (
-        <p style={{ color: '#999', textAlign: 'center', marginTop: 40 }}>No pending GIFs.</p>
+        <p style={{ color: 'var(--color-brown-faint)', textAlign: 'center', marginTop: 40 }}>No pending GIFs.</p>
       )}
 
       {queue.map(gif => (
         <div key={gif.id} style={{
-          background: '#fff', borderRadius: 12, marginBottom: 20,
+          background: '#fff', borderRadius: 'var(--radius-lg)', marginBottom: 20,
           overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         }}>
           <img src={gif.gif_url} alt={gif.title} style={{ width: '100%', display: 'block', maxHeight: 300, objectFit: 'contain' }} />
@@ -170,9 +170,9 @@ export default function Admin() {
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
-            <p style={{ fontSize: '0.82rem', color: '#888', marginBottom: 12 }}>
+            <p style={{ fontSize: '0.82rem', color: 'var(--color-brown-faint)', marginBottom: 12 }}>
               By {gif.submitter_name}{gif.submitter_email ? ` (${gif.submitter_email})` : ''} ·{' '}
-              <a href={gif.source_url} target="_blank" rel="noreferrer" style={{ color: '#d4880a' }}>
+              <a href={gif.source_url} target="_blank" rel="noreferrer" style={{ color: 'var(--color-amber)' }}>
                 Source ({gif.source_start}s – {gif.source_end}s)
               </a>
             </p>
@@ -180,13 +180,13 @@ export default function Admin() {
               <button
                 onClick={() => handleApprove(gif.id)}
                 disabled={actionInProgress === gif.id}
-                style={{ flex: 1, background: actionInProgress === gif.id ? '#ccc' : '#27ae60', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-success)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '10px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
                 Approve
               </button>
               <button
                 onClick={() => handleReject(gif.id)}
                 disabled={actionInProgress === gif.id}
-                style={{ flex: 1, background: actionInProgress === gif.id ? '#ccc' : '#e74c3c', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-error)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '10px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
                 Reject
               </button>
             </div>
