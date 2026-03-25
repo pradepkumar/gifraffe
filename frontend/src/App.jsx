@@ -21,7 +21,7 @@ const styles = {
   },
   nav: { display: 'flex', gap: 20 },
   navLink: {
-    color: '#fff3d0',
+    color: 'var(--color-cream-nav)',
     textDecoration: 'none',
     fontWeight: 500,
     fontSize: '0.95rem',
