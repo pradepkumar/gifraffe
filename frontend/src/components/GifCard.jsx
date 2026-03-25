@@ -9,7 +9,7 @@ export default function GifCard({ gif, onTagClick, onClick }) {
       onClick={() => onClick(gif)}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(gif) } }}
       style={{
-        background: '#fff',
+        background: 'var(--color-cream-card)',
         borderRadius: 'var(--radius-lg)',
         overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -23,7 +23,7 @@ export default function GifCard({ gif, onTagClick, onClick }) {
         src={gif.gif_url}
         alt={gif.title}
         loading="lazy"
-        style={{ width: '100%', display: 'block', aspectRatio: '16/9', objectFit: 'cover' }}
+        style={{ width: '100%', display: 'block', background: 'var(--color-cream)' }}
       />
       <div style={{ padding: '10px 12px' }}>
         <div style={{ fontWeight: 600, marginBottom: 6, fontSize: '0.9rem' }}>{gif.title}</div>

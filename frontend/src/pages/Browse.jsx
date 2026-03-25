@@ -112,18 +112,11 @@ export default function Browse() {
         </p>
       )}
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-        gap: 16,
-      }}>
+      <div className="gif-grid">
         {gifs.map(gif => (
-          <GifCard
-            key={gif.id}
-            gif={gif}
-            onTagClick={handleTagClick}
-            onClick={setSelected}
-          />
+          <div key={gif.id} className="gif-grid-item">
+            <GifCard gif={gif} onTagClick={handleTagClick} onClick={setSelected} />
+          </div>
         ))}
       </div>
 
