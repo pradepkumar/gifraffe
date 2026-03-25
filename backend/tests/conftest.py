@@ -18,7 +18,7 @@ def set_test_env(monkeypatch, tmp_path, test_password_hash):
     import sys
     if "rate_limiter" in sys.modules:
         from rate_limiter import rate_limiter
-        rate_limiter._requests.clear()
+        rate_limiter.reset()
 
 @pytest.fixture
 def client(set_test_env):

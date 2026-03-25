@@ -10,15 +10,25 @@ class RateLimiter:
     def check(self, key: str, max_requests: int, window_seconds: int) -> None:
         now = datetime.now(timezone.utc).timestamp()
         cutoff = now - window_seconds
-        self._requests[key] = [t for t in self._requests[key] if t > cutoff]
-        if len(self._requests[key]) >= max_requests:
+        pruned = [t for t in self._requests[key] if t > cutoff]
+        if len(pruned) >= max_requests:
             raise HTTPException(429, detail="Too many requests — please try again later")
-        self._requests[key].append(now)
+        pruned.append(now)
+        self._requests[key] = pruned
+
+    def reset(self) -> None:
+        """Clear all tracked request history. For use in tests only."""
+        self._requests.clear()
 
 
 def _get_ip(request: Request) -> str:
     """Return the real client IP, using X-Real-IP set by Nginx if present."""
-    return request.headers.get("X-Real-IP") or request.client.host
+    forwarded = request.headers.get("X-Real-IP")
+    if forwarded:
+        return forwarded
+    if request.client:
+        return request.client.host
+    return "unknown"
 
 
 rate_limiter = RateLimiter()

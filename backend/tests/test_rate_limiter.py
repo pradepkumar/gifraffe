@@ -1,7 +1,8 @@
 import datetime
 import pytest
+from unittest.mock import MagicMock
 from fastapi import HTTPException
-from rate_limiter import RateLimiter
+from rate_limiter import RateLimiter, limit_generate
 
 
 def test_allows_requests_under_limit():
@@ -42,3 +43,11 @@ def test_error_message_is_user_friendly():
     with pytest.raises(HTTPException) as exc_info:
         limiter.check("key:1.2.3.4", max_requests=5, window_seconds=3600)
     assert "try again" in exc_info.value.detail.lower()
+
+
+def test_get_ip_handles_missing_client():
+    request = MagicMock()
+    request.headers.get.return_value = None
+    request.client = None
+    # Should not raise — falls back to "unknown"
+    limit_generate(request)
