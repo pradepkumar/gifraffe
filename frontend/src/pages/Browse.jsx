@@ -103,13 +103,104 @@ export default function Browse() {
         </div>
       </form>
 
-      {loading && <p style={{ textAlign: 'center', color: 'var(--color-brown-faint)' }}>Loading...</p>}
+      {loading && (
+        <div style={{
+          textAlign: 'center',
+          padding: '60px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 12,
+        }}>
+          <div style={{
+            fontSize: '3rem',
+            animation: 'gifraffe-bounce 1s ease-in-out infinite',
+            display: 'inline-block',
+          }}>
+            🦒
+          </div>
+          <p style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--text-lg)',
+            fontWeight: 700,
+            color: 'var(--color-brown-mid)',
+            margin: 0,
+          }}>
+            Loading GIFs...
+          </p>
+          <p style={{
+            fontSize: 'var(--text-sm)',
+            color: 'var(--color-brown-faint)',
+            margin: 0,
+          }}>
+            The giraffe is fetching them
+          </p>
+        </div>
+      )}
       {error && <p style={{ textAlign: 'center', color: 'var(--color-error)' }}>{error}</p>}
 
       {!loading && gifs.length === 0 && (
-        <p style={{ textAlign: 'center', color: 'var(--color-brown-faint)', marginTop: 40 }}>
-          No GIFs found. <a href="/make" style={{ color: 'var(--color-amber)' }}>Make one!</a>
-        </p>
+        <div style={{
+          textAlign: 'center',
+          padding: '64px 24px',
+          maxWidth: 420,
+          margin: '0 auto',
+        }}>
+          <div style={{ fontSize: '4rem', marginBottom: 16 }}>🦒</div>
+          <h3 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--text-xl)',
+            fontWeight: 800,
+            color: 'var(--color-brown-mid)',
+            margin: '0 0 10px',
+          }}>
+            {query || category ? 'No GIFs match that search' : 'The library is empty'}
+          </h3>
+          <p style={{
+            fontSize: 'var(--text-base)',
+            color: 'var(--color-brown-faint)',
+            margin: '0 0 28px',
+            lineHeight: 1.6,
+          }}>
+            {query || category
+              ? 'Try different keywords or browse all categories.'
+              : 'Be the first to add a GIF. Paste a YouTube URL and turn any moment into a GIF.'}
+          </p>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            {(query || category) && (
+              <button
+                onClick={() => { setQuery(''); setCategory(''); }}
+                style={{
+                  background: 'var(--color-cream-chip)',
+                  color: 'var(--color-brown-light)',
+                  border: 'none',
+                  borderRadius: 'var(--radius-pill)',
+                  padding: '10px 22px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: 'var(--text-base)',
+                }}
+              >
+                Clear search
+              </button>
+            )}
+            <a
+              href="/make"
+              style={{
+                background: 'var(--color-amber)',
+                color: '#fff',
+                borderRadius: 'var(--radius-pill)',
+                padding: '10px 22px',
+                fontWeight: 700,
+                fontSize: 'var(--text-base)',
+                textDecoration: 'none',
+                display: 'inline-block',
+              }}
+            >
+              Make a GIF 🦒
+            </a>
+          </div>
+        </div>
       )}
 
       <div className="gif-grid">
