@@ -1,15 +1,15 @@
 import { useState } from 'react'
 
 const fieldStyle = {
-  width: '100%', padding: '10px 12px', borderRadius: 8,
-  border: '2px solid #e8c97a', fontSize: '0.95rem',
-  outline: 'none', background: '#fffdf5', resize: 'vertical',
+  width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)',
+  border: '2px solid var(--color-amber-muted)', fontSize: '0.95rem',
+  background: 'var(--color-cream-card)', resize: 'vertical',
   boxSizing: 'border-box',
 }
 
 const labelStyle = {
   display: 'block', marginBottom: 4, fontSize: '0.85rem',
-  fontWeight: 600, color: '#5a3a10',
+  fontWeight: 600, color: 'var(--color-brown-mid)',
 }
 
 export default function MetadataForm({ onSubmit, loading, categories }) {
@@ -58,8 +58,8 @@ export default function MetadataForm({ onSubmit, loading, categories }) {
         type="submit"
         disabled={loading}
         style={{
-          background: loading ? '#ccc' : '#d4880a',
-          color: '#fff', border: 'none', borderRadius: 10,
+          background: loading ? 'var(--color-disabled)' : 'var(--color-amber)',
+          color: loading ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-md)',
           padding: '12px', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
           fontSize: '1rem', marginTop: 4,
         }}

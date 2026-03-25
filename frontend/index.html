@@ -4,9 +4,97 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gifraffe</title>
+    <meta name="description" content="Gifraffe — browse and create GIFs from YouTube clips. A community GIF library.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦒</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fdf8f0; color: #2c1a0e; }
+      body { font-family: 'DM Sans', sans-serif; background: #fdf8f0; color: #2c1a0e; }
+      :focus-visible {
+        outline: 2px solid #d4880a;
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+      :root {
+        /* Brand colors */
+        --color-amber: #d4880a;
+        --color-amber-light: #f5a623;
+        --color-amber-muted: #e8c97a;
+        --color-cream: #fdf8f0;
+        --color-cream-card: #fffdf5;
+        --color-cream-chip: #f5e6c0;
+        --color-cream-nav: #fff3d0;
+        --color-brown-dark: #2c1a0e;
+        --color-brown-mid: #5a3a10;
+        --color-brown-light: #7a4f1a;
+        --color-brown-faint: #b8832a;
+
+        /* State colors */
+        --color-disabled: #e0c87a;
+        --color-disabled-text: #a07830;
+        --color-error: #c0392b;
+        --color-error-bg: #fff0f0;
+        --color-error-border: #f5c6c6;
+        --color-success: #27ae60;
+        --color-success-bg: #f0fff4;
+        --color-success-border: #a3e4b0;
+
+        /* Spacing / shape */
+        --radius-sm: 8px;
+        --radius-md: 10px;
+        --radius-lg: 12px;
+        --radius-pill: 20px;
+
+        /* Typography */
+        --font-display: 'Baloo 2', sans-serif;
+        --font-body: 'DM Sans', sans-serif;
+        --text-xs: 0.75rem;    /* 12px — captions, bylines */
+        --text-sm: 0.825rem;   /* ~13px — tags, secondary labels */
+        --text-base: 1rem;     /* 16px — body, inputs */
+        --text-lg: 1.125rem;   /* 18px — subheadings */
+        --text-xl: 1.375rem;   /* 22px — page headings */
+        --text-2xl: 1.625rem;  /* 26px — logo */
+      }
+      .gif-grid {
+        columns: 3;
+        column-gap: 16px;
+      }
+      .gif-grid-item {
+        break-inside: avoid;
+        margin-bottom: 16px;
+      }
+      @media (max-width: 700px) {
+        .gif-grid { columns: 2; }
+      }
+      @media (max-width: 420px) {
+        .gif-grid { columns: 1; }
+      }
+      @keyframes gifraffe-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      @keyframes gifraffe-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+      button {
+        transition: filter 0.15s ease, transform 0.15s ease;
+      }
+      button:not(:disabled):hover {
+        filter: brightness(0.93);
+      }
+      button:not(:disabled):active {
+        transform: scale(0.97);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
     </style>
   </head>
   <body>

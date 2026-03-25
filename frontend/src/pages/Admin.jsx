@@ -5,11 +5,10 @@ import { CATEGORIES } from '../constants.js'
 const inlineInputStyle = {
   width: '100%',
   padding: '8px 10px',
-  borderRadius: 8,
-  border: '2px solid #e8c97a',
-  background: '#fffdf5',
+  borderRadius: 'var(--radius-sm)',
+  border: '2px solid var(--color-amber-muted)',
+  background: 'var(--color-cream-card)',
   fontSize: '0.9rem',
-  outline: 'none',
   boxSizing: 'border-box',
 }
 
@@ -21,6 +20,8 @@ export default function Admin() {
   const [loading, setLoading] = useState(false)
   const [actionInProgress, setActionInProgress] = useState(null)
   const [edits, setEdits] = useState({})
+  const [rejectConfirm, setRejectConfirm] = useState(null)
+  const [actionError, setActionError] = useState(null)
 
   const toEdits = (results) =>
     Object.fromEntries(results.map(g => [g.id, {
@@ -74,40 +75,41 @@ export default function Admin() {
       })
       setQueue(q => q.filter(g => g.id !== id))
     } catch (e) {
-      alert('Failed to approve — ' + e.message)
+      setActionError('Failed to approve — ' + e.message)
     } finally {
       setActionInProgress(null)
     }
   }
 
   const handleReject = async (id) => {
-    if (!confirm('Reject and delete this GIF?')) return
     setActionInProgress(id)
     try {
       await rejectGif(id)
       setQueue(q => q.filter(g => g.id !== id))
     } catch (e) {
-      alert('Failed to reject — ' + e.message)
+      setActionError('Failed to reject — ' + e.message)
     } finally {
       setActionInProgress(null)
+      setRejectConfirm(null)
     }
   }
 
   if (!authed) {
     return (
       <div style={{ maxWidth: 360, margin: '60px auto', padding: 24 }}>
-        <h2 style={{ marginBottom: 20, color: '#5a3a10' }}>Admin Login</h2>
+        <h2 style={{ marginBottom: 20, color: 'var(--color-brown-mid)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>Admin Login</h2>
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="Password"
+            aria-label="Admin password"
             required
-            style={{ padding: '12px', borderRadius: 10, border: '2px solid #e8c97a', fontSize: '1rem', outline: 'none' }}
+            style={{ padding: '12px', borderRadius: 'var(--radius-md)', border: '2px solid var(--color-amber-muted)', fontSize: '1rem' }}
           />
-          {loginError && <p style={{ color: '#c0392b', fontSize: '0.9rem' }}>{loginError}</p>}
-          <button type="submit" style={{ background: '#d4880a', color: '#fff', border: 'none', borderRadius: 10, padding: 13, fontWeight: 700, cursor: 'pointer', fontSize: '1rem' }}>
+          {loginError && <p style={{ color: 'var(--color-error)', fontSize: '0.9rem' }}>{loginError}</p>}
+          <button type="submit" style={{ background: 'var(--color-amber)', color: '#fff', border: 'none', borderRadius: 'var(--radius-md)', padding: 13, fontWeight: 700, cursor: 'pointer', fontSize: '1rem' }}>
             Login
           </button>
         </form>
@@ -118,21 +120,39 @@ export default function Admin() {
   return (
     <div style={{ maxWidth: 700, margin: '0 auto', padding: '24px 16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ color: '#5a3a10' }}>Approval Queue</h2>
-        <button onClick={loadQueue} style={{ background: '#f5e6c0', border: 'none', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>
+        <h2 style={{ color: 'var(--color-brown-mid)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>Approval Queue</h2>
+        <button onClick={loadQueue} style={{ background: 'var(--color-cream-chip)', border: 'none', borderRadius: 'var(--radius-sm)', padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>
           Refresh
         </button>
       </div>
 
-      {loading && <p style={{ color: '#b8832a' }}>Loading...</p>}
+      {actionError && (
+        <div style={{
+          background: 'var(--color-error-bg)',
+          border: '1px solid var(--color-error-border)',
+          borderRadius: 'var(--radius-md)',
+          padding: '12px 16px',
+          color: 'var(--color-error)',
+          marginBottom: 16,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: 'var(--text-sm)',
+        }}>
+          {actionError}
+          <button onClick={() => setActionError(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error)', fontWeight: 700, fontSize: '1rem', padding: '0 4px' }}>×</button>
+        </div>
+      )}
+
+      {loading && <p style={{ color: 'var(--color-brown-faint)' }}>Loading...</p>}
 
       {!loading && queue.length === 0 && (
-        <p style={{ color: '#999', textAlign: 'center', marginTop: 40 }}>No pending GIFs.</p>
+        <p style={{ color: 'var(--color-brown-faint)', textAlign: 'center', marginTop: 40 }}>No pending GIFs.</p>
       )}
 
       {queue.map(gif => (
         <div key={gif.id} style={{
-          background: '#fff', borderRadius: 12, marginBottom: 20,
+          background: '#fff', borderRadius: 'var(--radius-lg)', marginBottom: 20,
           overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         }}>
           <img src={gif.gif_url} alt={gif.title} style={{ width: '100%', display: 'block', maxHeight: 300, objectFit: 'contain' }} />
@@ -144,6 +164,7 @@ export default function Admin() {
                 onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], title: e.target.value } }))}
                 style={inlineInputStyle}
                 placeholder="Title"
+                aria-label="GIF title"
               />
               <input
                 type="text"
@@ -151,24 +172,27 @@ export default function Admin() {
                 onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], tags: e.target.value } }))}
                 style={inlineInputStyle}
                 placeholder="tag1, tag2"
+                aria-label="Tags (comma separated)"
               />
               <textarea
                 value={edits[gif.id]?.description ?? ''}
                 onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], description: e.target.value } }))}
                 style={{ ...inlineInputStyle, resize: 'vertical', minHeight: 60 }}
                 placeholder="Description (optional)"
+                aria-label="Description"
               />
               <select
                 value={edits[gif.id]?.category ?? 'Other'}
                 onChange={e => setEdits(ed => ({ ...ed, [gif.id]: { ...ed[gif.id], category: e.target.value } }))}
                 style={inlineInputStyle}
+                aria-label="Category"
               >
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
-            <p style={{ fontSize: '0.82rem', color: '#888', marginBottom: 12 }}>
+            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-brown-faint)', marginBottom: 12 }}>
               By {gif.submitter_name}{gif.submitter_email ? ` (${gif.submitter_email})` : ''} ·{' '}
-              <a href={gif.source_url} target="_blank" rel="noreferrer" style={{ color: '#d4880a' }}>
+              <a href={gif.source_url} target="_blank" rel="noreferrer" style={{ color: 'var(--color-amber)' }}>
                 Source ({gif.source_start}s – {gif.source_end}s)
               </a>
             </p>
@@ -176,15 +200,32 @@ export default function Admin() {
               <button
                 onClick={() => handleApprove(gif.id)}
                 disabled={actionInProgress === gif.id}
-                style={{ flex: 1, background: actionInProgress === gif.id ? '#ccc' : '#27ae60', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-success)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
                 Approve
               </button>
-              <button
-                onClick={() => handleReject(gif.id)}
-                disabled={actionInProgress === gif.id}
-                style={{ flex: 1, background: actionInProgress === gif.id ? '#ccc' : '#e74c3c', color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
-                Reject
-              </button>
+              {rejectConfirm === gif.id ? (
+                <>
+                  <button
+                    onClick={() => { handleReject(gif.id) }}
+                    disabled={actionInProgress === gif.id}
+                    style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-error)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                    Yes, delete
+                  </button>
+                  <button
+                    onClick={() => setRejectConfirm(null)}
+                    disabled={actionInProgress === gif.id}
+                    style={{ flex: 1, background: 'var(--color-cream)', color: 'var(--color-brown-mid)', border: '1px solid var(--color-amber-muted)', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setRejectConfirm(gif.id)}
+                  disabled={actionInProgress === gif.id}
+                  style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-error)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                  Reject
+                </button>
+              )}
             </div>
           </div>
         </div>

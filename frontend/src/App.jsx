@@ -5,7 +5,7 @@ import Admin from './pages/Admin.jsx'
 
 const styles = {
   header: {
-    background: '#d4880a',
+    background: 'var(--color-amber)',
     padding: '12px 20px',
     display: 'flex',
     alignItems: 'center',
@@ -14,14 +14,15 @@ const styles = {
   },
   logo: {
     color: '#fff',
+    fontFamily: 'var(--font-display)',
     fontWeight: 800,
-    fontSize: '1.5rem',
+    fontSize: 'var(--text-2xl)',
     textDecoration: 'none',
     letterSpacing: '-0.5px',
   },
   nav: { display: 'flex', gap: 20 },
   navLink: {
-    color: '#fff3d0',
+    color: 'var(--color-cream-nav)',
     textDecoration: 'none',
     fontWeight: 500,
     fontSize: '0.95rem',
