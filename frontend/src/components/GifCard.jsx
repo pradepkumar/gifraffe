@@ -25,8 +25,8 @@ export default function GifCard({ gif, onTagClick, onClick }) {
         loading="lazy"
         style={{ width: '100%', display: 'block', background: 'var(--color-cream)' }}
       />
-      <div style={{ padding: '10px 12px' }}>
-        <div style={{ fontWeight: 600, marginBottom: 6, fontSize: '0.9rem' }}>{gif.title}</div>
+      <div style={{ padding: '8px 12px' }}>
+        <div style={{ fontWeight: 600, marginBottom: 6, fontSize: 'var(--text-sm)' }}>{gif.title}</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
           {(gif.tags ?? []).map(tag => (
             <span key={tag} onClick={e => e.stopPropagation()}>

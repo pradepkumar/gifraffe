@@ -20,6 +20,8 @@ export default function Admin() {
   const [loading, setLoading] = useState(false)
   const [actionInProgress, setActionInProgress] = useState(null)
   const [edits, setEdits] = useState({})
+  const [rejectConfirm, setRejectConfirm] = useState(null)
+  const [actionError, setActionError] = useState(null)
 
   const toEdits = (results) =>
     Object.fromEntries(results.map(g => [g.id, {
@@ -73,22 +75,22 @@ export default function Admin() {
       })
       setQueue(q => q.filter(g => g.id !== id))
     } catch (e) {
-      alert('Failed to approve — ' + e.message)
+      setActionError('Failed to approve — ' + e.message)
     } finally {
       setActionInProgress(null)
     }
   }
 
   const handleReject = async (id) => {
-    if (!confirm('Reject and delete this GIF?')) return
     setActionInProgress(id)
     try {
       await rejectGif(id)
       setQueue(q => q.filter(g => g.id !== id))
     } catch (e) {
-      alert('Failed to reject — ' + e.message)
+      setActionError('Failed to reject — ' + e.message)
     } finally {
       setActionInProgress(null)
+      setRejectConfirm(null)
     }
   }
 
@@ -123,6 +125,24 @@ export default function Admin() {
           Refresh
         </button>
       </div>
+
+      {actionError && (
+        <div style={{
+          background: 'var(--color-error-bg)',
+          border: '1px solid var(--color-error-border)',
+          borderRadius: 'var(--radius-md)',
+          padding: '12px 16px',
+          color: 'var(--color-error)',
+          marginBottom: 16,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: 'var(--text-sm)',
+        }}>
+          {actionError}
+          <button onClick={() => setActionError(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error)', fontWeight: 700, fontSize: '1rem', padding: '0 4px' }}>×</button>
+        </div>
+      )}
 
       {loading && <p style={{ color: 'var(--color-brown-faint)' }}>Loading...</p>}
 
@@ -183,12 +203,29 @@ export default function Admin() {
                 style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-success)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
                 Approve
               </button>
-              <button
-                onClick={() => handleReject(gif.id)}
-                disabled={actionInProgress === gif.id}
-                style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-error)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
-                Reject
-              </button>
+              {rejectConfirm === gif.id ? (
+                <>
+                  <button
+                    onClick={() => { handleReject(gif.id) }}
+                    disabled={actionInProgress === gif.id}
+                    style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-error)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                    Yes, delete
+                  </button>
+                  <button
+                    onClick={() => setRejectConfirm(null)}
+                    disabled={actionInProgress === gif.id}
+                    style={{ flex: 1, background: 'var(--color-cream)', color: 'var(--color-brown-mid)', border: '1px solid var(--color-amber-muted)', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setRejectConfirm(gif.id)}
+                  disabled={actionInProgress === gif.id}
+                  style={{ flex: 1, background: actionInProgress === gif.id ? 'var(--color-disabled)' : 'var(--color-error)', color: actionInProgress === gif.id ? 'var(--color-disabled-text)' : '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '12px', fontWeight: 700, cursor: actionInProgress === gif.id ? 'not-allowed' : 'pointer' }}>
+                  Reject
+                </button>
+              )}
             </div>
           </div>
         </div>
